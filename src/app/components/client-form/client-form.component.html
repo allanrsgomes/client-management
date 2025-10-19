@@ -1,0 +1,250 @@
+<div class="container">
+  <div class="header">
+    <h1>{{ isEditMode ? 'Editar Cliente' : 'Novo Cliente' }}</h1>
+  </div>
+
+  <form [formGroup]="clientForm" (ngSubmit)="onSubmit()" class="client-form">
+
+    <!-- Informações Básicas -->
+    <div class="form-section">
+      <h2>Informações Básicas</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Nome *</label>
+          <input type="text" id="name" formControlName="name" class="form-control" placeholder="Nome completo"
+            [class.error]="clientForm.get('name')?.invalid && clientForm.get('name')?.touched" />
+          <span class="error-message" *ngIf="clientForm.get('name')?.invalid && clientForm.get('name')?.touched">
+            <span *ngIf="clientForm.get('name')?.errors?.['required']">Nome é obrigatório</span>
+            <span *ngIf="clientForm.get('name')?.errors?.['minlength']">Nome deve ter no mínimo 3 caracteres</span>
+          </span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cpf">CPF *</label>
+          <input type="text" id="cpf" formControlName="cpf" class="form-control" placeholder="000.000.000-00" appCpfMask
+            [class.error]="clientForm.get('cpf')?.invalid && clientForm.get('cpf')?.touched" />
+          <span class="error-message" *ngIf="clientForm.get('cpf')?.invalid && clientForm.get('cpf')?.touched">
+            <mat-icon>error</mat-icon>
+            <span *ngIf="clientForm.get('cpf')?.errors?.['required']">CPF é obrigatório</span>
+            <span *ngIf="clientForm.get('cpf')?.errors?.['cpfInvalid']">
+              {{ clientForm.get('cpf')?.errors?.['cpfInvalid']?.message || 'CPF inválido' }}
+            </span>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Telefone *</label>
+          <input type="text" id="phone" formControlName="phone" class="form-control" placeholder="(00) 00000-0000"
+            appPhoneMask [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched" />
+          <span class="error-message" *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
+            <mat-icon>error</mat-icon>
+            <span *ngIf="clientForm.get('phone')?.errors?.['required']">Telefone é obrigatório</span>
+            <span *ngIf="clientForm.get('phone')?.errors?.['phoneInvalid']">
+              {{ clientForm.get('phone')?.errors?.['phoneInvalid']?.message || 'Telefone inválido' }}
+            </span>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="form-section" formGroupName="address">
+      <h2>Endereço</h2>
+
+      <div class="form-row">
+        <div class="form-group flex-2">
+          <label for="street">Rua *</label>
+          <input type="text" id="street" formControlName="street" class="form-control" placeholder="Rua, número"
+            [class.error]="clientForm.get('address.street')?.invalid && clientForm.get('address.street')?.touched" />
+          <span class="error-message"
+            *ngIf="clientForm.get('address.street')?.invalid && clientForm.get('address.street')?.touched">
+            Endereço é obrigatório
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="complement">Complemento</label>
+          <input type="text" id="complement" formControlName="complement" class="form-control" placeholder="AP, BL" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="city">Cidade *</label>
+          <input type="text" id="city" formControlName="city" class="form-control" placeholder="Cidade"
+            [class.error]="clientForm.get('address.city')?.invalid && clientForm.get('address.city')?.touched" />
+          <span class="error-message"
+            *ngIf="clientForm.get('address.city')?.invalid && clientForm.get('address.city')?.touched">
+            Cidade é obrigatória
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="uf">UF *</label>
+          <select id="uf" formControlName="uf" class="form-control"
+            [class.error]="clientForm.get('address.uf')?.invalid && clientForm.get('address.uf')?.touched">
+            <option value="">Selecione</option>
+            <option *ngFor="let uf of ufs" [value]="uf">{{ uf }}</option>
+          </select>
+          <span class="error-message"
+            *ngIf="clientForm.get('address.uf')?.invalid && clientForm.get('address.uf')?.touched">
+            UF é obrigatório
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Serviços -->
+    <div class="form-section">
+      <h2>Serviços</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Apps *</label>
+          <div class="checkbox-group">
+            <label *ngFor="let app of apps" class="checkbox-label">
+              <input type="checkbox" [value]="app" [checked]="clientForm.get('app')?.value?.includes(app)"
+                (change)="onAppChange($event, app)" />
+              {{ app }}
+            </label>
+          </div>
+          <span class="error-message" *ngIf="clientForm.get('app')?.invalid && clientForm.get('app')?.touched">
+            Selecione pelo menos um app
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label>Servidores *</label>
+          <div class="checkbox-group">
+            <label *ngFor="let server of servers" class="checkbox-label">
+              <input type="checkbox" [value]="server" [checked]="clientForm.get('server')?.value?.includes(server)"
+                (change)="onServerChange($event, server)" />
+              {{ server }}
+            </label>
+          </div>
+          <span class="error-message" *ngIf="clientForm.get('server')?.invalid && clientForm.get('server')?.touched">
+            Selecione pelo menos um servidor
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credenciais -->
+    <div class="form-section">
+      <h2>Credenciais</h2>
+
+      <div formArrayName="credentials">
+        <div *ngFor="let credential of credentials.controls; let i = index" [formGroupName]="i" class="credential-row">
+          <div class="form-group">
+            <label>Usuário</label>
+            <input type="text" formControlName="username" class="form-control" placeholder="Usuário" />
+          </div>
+
+          <div class="form-group">
+            <label>Senha</label>
+            <input type="text" formControlName="password" class="form-control" placeholder="Senha" />
+          </div>
+
+          <button type="button" class="btn-remove" (click)="removeCredential(i)">
+            <mat-icon>delete</mat-icon>
+            Remover
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-add" (click)="addCredential()">
+        <mat-icon>add</mat-icon>
+        Adicionar Credencial
+      </button>
+    </div>
+
+    <!-- Financeiro -->
+    <div class="form-section">
+      <h2>Informações Financeiras</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cost">Custo</label>
+          <input type="number" id="cost" formControlName="cost" class="form-control" step="0.01" min="0"
+            [class.error]="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched" />
+          <span class="error-message" *ngIf="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched">
+            <span *ngIf="clientForm.get('cost')?.errors?.['minValue']">Valor deve ser maior ou igual a 0</span>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="price">Preço *</label>
+          <input type="number" id="price" formControlName="price" class="form-control" step="0.01" min="0"
+            [class.error]="clientForm.get('price')?.invalid && clientForm.get('price')?.touched" />
+          <span class="error-message" *ngIf="clientForm.get('price')?.invalid && clientForm.get('price')?.touched">
+            <span *ngIf="clientForm.get('price')?.errors?.['required']">Preço é obrigatório</span>
+            <span *ngIf="clientForm.get('price')?.errors?.['minValue']">Valor deve ser maior ou igual a 0</span>
+          </span>
+        </div>
+
+        <div class="form-group">
+          <label for="point">Pontos</label>
+          <input type="number" id="point" formControlName="point" class="form-control" min="0" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="paymentMethod">Forma de Pagamento</label>
+          <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
+            <option *ngFor="let method of paymentMethods" [value]="method">{{ method }}</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="checkbox-label checkbox-paid">
+            <input type="checkbox" formControlName="paid" />
+            <mat-icon>{{ clientForm.get('paid')?.value ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>
+            <span>Pago</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Observações -->
+    <div class="form-section">
+      <h2>Informações Adicionais</h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="recommendation">Indicação</label>
+          <input type="text" id="recommendation" formControlName="recommendation" class="form-control"
+            placeholder="Quem indicou" />
+        </div>
+
+        <div class="form-group">
+          <label for="date">Data de Vencimento</label>
+          <input type="date" id="date" formControlName="date" class="form-control" />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group full-width">
+          <label for="observations">Observações</label>
+          <textarea id="observations" formControlName="observations" class="form-control" rows="4"
+            placeholder="Observações adicionais"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Botões de Ação -->
+    <div class="form-actions">
+      <button type="button" class="btn-cancel" (click)="cancel()">
+        <mat-icon>close</mat-icon>
+        Cancelar
+      </button>
+      <button type="submit" class="btn-submit" [disabled]="clientForm.invalid || loading">
+        <mat-icon>{{ loading ? 'hourglass_empty' : 'save' }}</mat-icon>
+        {{ loading ? 'Salvando...' : (isEditMode ? 'Atualizar' : 'Criar') }}
+      </button>
+    </div>
+  </form>
+</div>

@@ -1,0 +1,31 @@
+<!-- src/app/components/sidebar/sidebar.component.html -->
+
+<aside class="sidebar" [class.collapsed]="isCollapsed">
+  <div class="sidebar-header">
+    <div class="logo" [class.collapsed]="isCollapsed">
+      <span class="logo-text">ClientManager</span>
+    </div>
+    <button class="toggle-btn" (click)="toggleSidebar()" [title]="isCollapsed ? 'Expandir' : 'Recolher'">
+      <mat-icon>{{ isCollapsed ? 'menu_open' : 'menu' }}</mat-icon>
+    </button>
+  </div>
+
+  <nav class="sidebar-nav">
+    <ul class="menu-list">
+      <li *ngFor="let item of menuItems" class="menu-item" [class.active]="isActive(item.route)">
+        <a (click)="navigateTo(item.route)" class="menu-link" [title]="isCollapsed ? item.label : ''">
+          <mat-icon class="menu-icon">{{ item.icon }}</mat-icon>
+          <span class="menu-label">{{ item.label }}</span>
+          <span class="menu-badge" *ngIf="item.badge">{{ item.badge }}</span>
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="footer-content">
+      <p class="footer-text">© 2025 ClientManager</p>
+      <p class="footer-version">v2.0.0</p>
+    </div>
+  </div>
+</aside>

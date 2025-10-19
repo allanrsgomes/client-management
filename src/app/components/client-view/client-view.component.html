@@ -1,0 +1,181 @@
+<div class="container">
+  <div class="header">
+    <button class="btn-back" (click)="goBack()">← Voltar</button>
+    <div class="header-actions">
+      <button class="btn-edit" (click)="editClient()">Editar</button>
+      <button class="btn-archive" (click)="toggleArchive()">
+        {{ client?.archived ? 'Desarquivar' : 'Arquivar' }}
+      </button>
+      <button class="btn-delete" (click)="deleteClient()">Excluir</button>
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <p>Carregando...</p>
+  </div>
+
+  <div *ngIf="!loading && client" class="client-details">
+
+    <!-- Status Badges -->
+    <div class="badges-section">
+      <span *ngFor="let app of client.app" class="badge">{{ app }}</span>
+      <span *ngIf="client.archived" class="badge archived">Arquivado</span>
+      <span *ngIf="client.paid" class="badge paid">Pago</span>
+      <span *ngIf="!client.paid" class="badge unpaid">Não Pago</span>
+    </div>
+
+    <!-- Informações Básicas -->
+    <div class="info-section">
+      <h2>{{ client.name }}</h2>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">CPF:</span>
+          <span class="info-value">{{ client.cpf | cpf }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Telefone:</span>
+          <span class="info-value">{{ client.phone | phone }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Data de Criação:</span>
+          <span class="info-value">{{ client.createdAt | dateBr }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="client.date">
+          <span class="info-label">Vencimento:</span>
+          <span class="info-value">{{ client.date | dateBr }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Endereço -->
+    <div class="info-section">
+      <h3>Endereço</h3>
+
+      <div class="info-grid">
+        <div class="info-item full-width">
+          <span class="info-label">Rua:</span>
+          <span class="info-value">{{ client.address.street }}</span>
+        </div>
+
+        <div class="info-item" *ngIf="client.address.complement">
+          <span class="info-label">Complemento:</span>
+          <span class="info-value">{{ client.address.complement }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Cidade:</span>
+          <span class="info-value">{{ client.address.city }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">UF:</span>
+          <span class="info-value">{{ client.address.uf }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Serviços -->
+    <div class="info-section">
+      <h3>Serviços Contratados</h3>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Apps:</span>
+          <span class="info-value">{{ client.app.join(', ') }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Servidores:</span>
+          <span class="info-value">{{ client.server.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Credenciais -->
+    <div class="info-section" *ngIf="client.credentials && client.credentials.length > 0">
+      <h3>Credenciais de Acesso</h3>
+
+      <div class="credentials-list">
+        <div *ngFor="let credential of client.credentials; let i = index" class="credential-card">
+          <div class="credential-number">Credencial {{ i + 1 }}</div>
+          <div class="credential-details">
+            <div class="info-item">
+              <span class="info-label">Usuário:</span>
+              <span class="info-value">{{ credential.username }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-label">Senha:</span>
+              <span class="info-value">{{ credential.password }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações Financeiras -->
+    <div class="info-section">
+      <h3>Informações Financeiras</h3>
+
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Custo:</span>
+          <span class="info-value">R$ {{ client.cost }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Preço:</span>
+          <span class="info-value highlight">R$ {{ client.price }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Forma de Pagamento:</span>
+          <span class="info-value">{{ client.paymentMethod }}</span>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Pontos:</span>
+          <span class="info-value">{{ client.point }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações Adicionais -->
+    <div class="info-section" *ngIf="client.recommendation || client.observations">
+      <h3>Informações Adicionais</h3>
+
+      <div class="info-grid">
+        <div class="info-item full-width" *ngIf="client.recommendation">
+          <span class="info-label">Indicação:</span>
+          <span class="info-value">{{ client.recommendation }}</span>
+        </div>
+
+        <div class="info-item full-width" *ngIf="client.observations">
+          <span class="info-label">Observações:</span>
+          <span class="info-value">{{ client.observations }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Informações Técnicas -->
+    <div class="info-section" *ngIf="client.mac || (client.macs && client.macs.length > 0)">
+      <h3>Informações Técnicas</h3>
+
+      <div class="info-grid">
+        <div class="info-item" *ngIf="client.mac">
+          <span class="info-label">MAC Address:</span>
+          <span class="info-value">{{ client.mac }}</span>
+        </div>
+
+        <div class="info-item full-width" *ngIf="client.macs && client.macs.length > 0">
+          <span class="info-label">MACs Registrados:</span>
+          <span class="info-value">{{ client.macs.join(', ') }}</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

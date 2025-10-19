@@ -1,0 +1,19 @@
+<!-- Adicionar no layout.component.html -->
+
+<div class="app-layout">
+  <app-sidebar></app-sidebar>
+
+  <!-- Overlay para mobile -->
+  <div
+    class="sidebar-overlay"
+    *ngIf="!isSidebarCollapsed && isMobile"
+    (click)="closeSidebar()">
+  </div>
+
+  <div class="main-wrapper" [class.sidebar-collapsed]="isSidebarCollapsed">
+    <app-header></app-header>
+    <main class="main-content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

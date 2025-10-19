@@ -1,0 +1,31 @@
+<!-- src/app/components/header/header.component.html -->
+
+<header class="header">
+  <div class="header-container">
+    <div class="header-left">
+      <!-- Botão mobile para abrir sidebar -->
+      <button class="mobile-menu-btn" (click)="toggleSidebar()">
+        <mat-icon>menu</mat-icon>
+      </button>
+
+      <div class="logo">
+        <mat-icon class="logo-icon">group</mat-icon>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="user-info">
+        <span class="user-email">{{ userEmail }}</span>
+      </div>
+
+      <button class="theme-toggle" (click)="toggleTheme()" title="Alternar tema">
+        <mat-icon>{{ isDarkMode ? 'light_mode' : 'dark_mode' }}</mat-icon>
+      </button>
+
+      <button class="logout-btn" (click)="logout()" title="Sair">
+        <mat-icon>logout</mat-icon>
+        <span>Sair</span>
+      </button>
+    </div>
+  </div>
+</header>

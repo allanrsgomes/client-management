@@ -1,0 +1,42 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  transition: background-color 0.3s ease;
+}
+
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+  background: var(--bg-primary);
+}
+
+.main-wrapper {
+  flex: 1;
+  margin-left: 260px;
+  display: flex;
+  flex-direction: column;
+  transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 100vh;
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+  max-width: 100%;
+  width: 100%;
+}
+
+:host-context(.sidebar.collapsed)~.main-wrapper,
+.sidebar.collapsed~.main-wrapper {
+  margin-left: 80px;
+}
+
+@media (max-width: 768px) {
+  .main-wrapper {
+    margin-left: 80px;
+  }
+
+  .main-content {
+    padding: 16px;
+  }
+}

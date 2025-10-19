@@ -1,0 +1,346 @@
+/* src/app/components/sidebar/sidebar.component.scss */
+
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 260px;
+  background: var(--bg-primary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+
+  &.collapsed {
+    width: 72px;
+  }
+}
+
+.sidebar-header {
+  padding: 16px 12px;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 80px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-width: 0;
+  flex: 1;
+  transition: var(--transition);
+
+  &.collapsed {
+    .logo-text {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+  }
+}
+
+.logo-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+  font-size: 28px !important;
+  width: 28px !important;
+  height: 28px !important;
+  filter: drop-shadow(0 2px 4px rgba(99, 102, 241, 0.3));
+}
+
+.logo-text {
+  font-size: 18px;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  overflow: hidden;
+}
+
+.sidebar.collapsed .logo-text {
+  opacity: 0;
+  transform: translateX(-10px);
+  width: 0;
+}
+
+.toggle-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: var(--transition);
+  color: var(--text-primary);
+  flex-shrink: 0;
+
+  mat-icon {
+    font-size: 20px !important;
+    width: 20px !important;
+    height: 20px !important;
+    transition: var(--transition);
+  }
+
+  &:hover {
+    background: var(--primary);
+    border-color: var(--primary);
+    color: white;
+    transform: scale(1.05);
+
+    mat-icon {
+      color: white;
+    }
+  }
+}
+
+.sidebar-nav {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 16px 8px;
+
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-color);
+    border-radius: 2px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+}
+
+.menu-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+}
+
+.menu-item {
+  position: relative;
+
+  &.active {
+    .menu-link {
+      background: linear-gradient(90deg, var(--primary) 0%, var(--primary-dark) 100%);
+      color: white;
+      box-shadow: var(--shadow-md);
+
+      .menu-icon {
+        color: white !important;
+      }
+
+      .menu-label {
+        color: white;
+      }
+    }
+  }
+}
+
+.menu-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border-radius: var(--border-radius-sm);
+  color: var(--text-primary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative;
+  overflow: hidden;
+  min-height: 44px;
+
+  &:hover:not(.active) {
+    background: var(--bg-secondary);
+
+    .menu-icon {
+      transform: scale(1.1);
+      color: var(--primary);
+    }
+  }
+}
+
+.menu-icon {
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: var(--transition);
+  font-size: 22px !important;
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.menu-label {
+  font-size: 14px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  flex: 1;
+  overflow: hidden;
+  color: var(--text-primary);
+}
+
+.sidebar.collapsed {
+  .menu-label {
+    opacity: 0;
+    transform: translateX(-10px);
+    width: 0;
+  }
+
+  .menu-link {
+    justify-content: center;
+    padding: 12px;
+  }
+
+  .menu-badge {
+    opacity: 0;
+    width: 0;
+    padding: 0;
+  }
+}
+
+.menu-badge {
+  padding: 2px 8px;
+  background: var(--danger);
+  color: white;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 700;
+  transition: opacity 0.2s ease, width 0.2s ease, padding 0.2s ease;
+  white-space: nowrap;
+}
+
+.sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--border-color);
+  transition: opacity 0.2s ease;
+}
+
+.sidebar.collapsed .sidebar-footer {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.footer-content {
+  text-align: center;
+}
+
+.footer-text {
+  font-size: 11px;
+  color: var(--text-tertiary);
+  margin: 0 0 4px 0;
+}
+
+.footer-version {
+  font-size: 10px;
+  color: var(--text-tertiary);
+  font-weight: 600;
+  margin: 0;
+}
+
+// Responsividade melhorada
+@media (max-width: 768px) {
+  .sidebar {
+    width: 72px;
+
+    .logo-text,
+    .menu-label,
+    .menu-badge {
+      opacity: 0;
+      transform: translateX(-10px);
+      width: 0;
+    }
+
+    .menu-link {
+      justify-content: center;
+    }
+
+    .sidebar-footer {
+      opacity: 0;
+    }
+
+    // Expande ao hover em mobile
+    &:hover {
+      width: 260px;
+
+      .logo-text,
+      .menu-label {
+        opacity: 1;
+        transform: translateX(0);
+        width: auto;
+      }
+
+      .menu-badge {
+        opacity: 1;
+        width: auto;
+        padding: 2px 8px;
+      }
+
+      .menu-link {
+        justify-content: flex-start;
+      }
+
+      .sidebar-footer {
+        opacity: 1;
+      }
+    }
+  }
+}
+
+// Dark mode improvements
+:host-context(.dark) {
+  .logo-icon {
+    filter: drop-shadow(0 2px 6px rgba(139, 92, 246, 0.4));
+  }
+
+  .toggle-btn:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+// Animações melhoradas
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.menu-item {
+  animation: slideIn 0.3s ease-out backwards;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.04}s;
+    }
+  }
+}
+
+// Animação suave ao expandir/colapsar
+.sidebar {
+  * {
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}

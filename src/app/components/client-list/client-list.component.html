@@ -1,0 +1,143 @@
+<!-- src/app/components/client-list/client-list.component.html -->
+
+<div class="container">
+  <div class="header">
+    <div class="header-content">
+      <h1>Gerenciamento de Clientes</h1>
+      <p class="subtitle">Gerencie todos os seus clientes de forma eficiente</p>
+    </div>
+    <button class="btn-primary" (click)="createClient()">
+      <mat-icon>add</mat-icon>
+      Novo Cliente
+    </button>
+  </div>
+
+  <div class="filters-card">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearchChange()"
+        placeholder="Buscar por nome, CPF, telefone, cidade..." class="search-input" />
+    </div>
+
+    <label class="checkbox-container">
+      <input type="checkbox" [(ngModel)]="showArchived" (ngModelChange)="onArchivedChange()" />
+      <span class="checkbox-label">Mostrar arquivados</span>
+    </label>
+  </div>
+
+  <div class="clients-list" *ngIf="clients$ | async as clients">
+    <div class="list-header">
+      <div class="col-name sortable" (click)="sort('name')">
+        <span>Nome</span>
+        <mat-icon class="sort-icon">{{ getSortIcon('name') }}</mat-icon>
+      </div>
+      <div class="col-expiry sortable" (click)="sort('daysUntilExpiry')">
+        <span>Vencimento</span>
+        <mat-icon class="sort-icon">{{ getSortIcon('daysUntilExpiry') }}</mat-icon>
+      </div>
+      <div class="col-contact sortable" (click)="sort('city')">
+        <span>Contato</span>
+        <mat-icon class="sort-icon">{{ getSortIcon('city') }}</mat-icon>
+      </div>
+      <div class="col-services">
+        Serviços
+      </div>
+      <div class="col-value sortable" (click)="sort('price')">
+        <span>Valor</span>
+        <mat-icon class="sort-icon">{{ getSortIcon('price') }}</mat-icon>
+      </div>
+      <div class="col-status">
+        Status
+      </div>
+      <div class="col-actions">
+        Ações
+      </div>
+    </div>
+
+    <div *ngFor="let client of clients" class="client-row" [class.archived]="client.archived">
+      <div class="col-name">
+        <div class="client-info">
+          <div class="client-avatar">
+            {{ client.name.charAt(0).toUpperCase() || '?' }}
+          </div>
+          <div class="client-details">
+            <h3 class="client-name">{{ client.name || 'Sem nome' }}</h3>
+            <span class="client-cpf">CPF: {{ client.cpf | cpf }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-expiry">
+        <div class="expiry-info">
+          <span class="expiry-date">
+            <mat-icon class="date-icon">event</mat-icon>
+            {{ client.date | dateBr }}
+          </span>
+          <span class="days-remaining" [ngClass]="dateUtils.getExpiryClass(dateUtils.getDaysUntilDate(client.date))">
+            <mat-icon class="warning-icon">{{ dateUtils.getExpiryIcon(dateUtils.getDaysUntilDate(client.date))
+              }}</mat-icon>
+            {{ dateUtils.getExpiryText(dateUtils.getDaysUntilDate(client.date)) }}
+          </span>
+        </div>
+      </div>
+
+      <div class="col-contact">
+        <div class="contact-info">
+          <span class="phone">{{ client.phone | phone }}</span>
+          <span class="location">{{ client.address.city || 'N/A' }} - {{ client.address.uf || 'N/A' }}</span>
+        </div>
+      </div>
+
+      <div class="col-services">
+        <div class="badges">
+          <span *ngFor="let app of client.app" class="badge badge-primary">{{ app }}</span>
+          <span *ngIf="!client.app || client.app.length === 0" class="badge badge-secondary">Nenhum</span>
+        </div>
+      </div>
+
+      <div class="col-value">
+        <div class="value-info">
+          <span class="price">R$ {{ client.price || 0 }}</span>
+          <span class="points">{{ client.point || 0 }} pontos</span>
+        </div>
+      </div>
+
+      <div class="col-status">
+        <span class="status-badge clickable" [class.paid]="client.paid" [class.unpaid]="!client.paid"
+          (click)="togglePaymentStatus(client)"
+          [title]="client.paid ? 'Clique para marcar como pendente' : 'Clique para marcar como pago'">
+          <mat-icon class="status-icon">{{ client.paid ? 'check_circle' : 'pending' }}</mat-icon>
+          {{ client.paid ? 'Pago' : 'Pendente' }}
+        </span>
+        <span *ngIf="client.archived" class="status-badge archived-badge">
+          <mat-icon class="status-icon">archive</mat-icon>
+          Arquivado
+        </span>
+      </div>
+
+      <div class="col-actions">
+        <div class="action-buttons">
+          <button class="btn-icon" (click)="viewClient(client.id!)" title="Visualizar">
+            <mat-icon>visibility</mat-icon>
+          </button>
+          <button class="btn-icon" (click)="editClient(client.id!)" title="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="btn-icon" (click)="toggleArchive(client)"
+            [title]="client.archived ? 'Desarquivar' : 'Arquivar'">
+            <mat-icon>{{ client.archived ? 'unarchive' : 'archive' }}</mat-icon>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteClient(client)" title="Excluir">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="clients.length === 0" class="empty-state">
+      <mat-icon class="empty-icon">people_outline</mat-icon>
+      <h3>Nenhum cliente encontrado</h3>
+      <p>{{ searchTerm ? 'Tente ajustar sua busca' : 'Adicione um novo cliente para começar' }}</p>
+    </div>
+  </div>
+</div>
