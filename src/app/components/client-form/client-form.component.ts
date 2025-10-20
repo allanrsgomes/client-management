@@ -74,7 +74,7 @@ export class ClientFormComponent implements OnInit {
   initForm(): void {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      cpf: ['', [Validators.required, CustomValidators.cpf()]],
+      cpf: ['', [CustomValidators.cpf()]],
       phone: ['', [Validators.required, CustomValidators.phone()]],
       address: this.fb.group({
         street: ['', Validators.required],
