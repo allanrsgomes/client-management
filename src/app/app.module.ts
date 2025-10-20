@@ -3,11 +3,9 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
-
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
-
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 
@@ -19,6 +17,8 @@ import { LoginComponent } from './components/login/login.component';
 import { HeaderComponent } from './components/header/header.component';
 import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { LayoutComponent } from './components/layout/layout.component';
+import { AppListComponent } from './components/app-list/app-list.component';
+import { ServerListComponent } from './components/server-list/server-list.component';
 
 // Directives
 import { CpfMaskDirective } from './directives/cpf-mask.directive';
@@ -39,6 +39,7 @@ import { DateBrPipe } from './pipes/date-br.pipe';
 
 // Guards
 import { AuthGuard } from './guards/auth.guard';
+
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpTyQxGsNPwV7W7zvYuEk5c9eAYmbRc9c",
@@ -64,7 +65,9 @@ const firebaseConfig = {
     PhoneMaskDirective,
     CpfPipe,
     PhonePipe,
-    DateBrPipe
+    DateBrPipe,
+    AppListComponent,
+    ServerListComponent
   ],
   imports: [
     BrowserModule,

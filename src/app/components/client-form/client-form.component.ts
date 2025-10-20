@@ -7,7 +7,9 @@ import { FirebaseService } from '../../services/firebase.service';
 import { CustomValidators } from '../../validators/custom-validators';
 import { StringUtils } from '../../utils/string.utils';
 import { DateUtils } from '../../utils/date.utils';
-import { Client } from '../../models/client.model';
+import { App } from '../../models/app.model';
+import { Server } from '../../models/server.model';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-client-form',
@@ -20,8 +22,12 @@ export class ClientFormComponent implements OnInit {
   clientId: string | null = null;
   loading = false;
 
-  apps = ['UniTV', 'DreamTV', 'Five'];
-  servers = ['UniTV', 'DreamTV', 'Five'];
+  // Listas dinâmicas carregadas do Firebase
+  apps: string[] = [];
+  servers: string[] = [];
+  apps$!: Observable<App[]>;
+  servers$!: Observable<Server[]>;
+
   paymentMethods = ['Pix', 'Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência'];
   ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
@@ -30,10 +36,11 @@ export class ClientFormComponent implements OnInit {
     private firebaseService: FirebaseService,
     private route: ActivatedRoute,
     private router: Router
-  ) {}
+  ) { }
 
   ngOnInit(): void {
     this.initForm();
+    this.loadAppsAndServers();
 
     this.clientId = this.route.snapshot.paramMap.get('id');
     this.isEditMode = !!this.clientId;
@@ -43,11 +50,31 @@ export class ClientFormComponent implements OnInit {
     }
   }
 
+  loadAppsAndServers(): void {
+    // Carrega apps ativos do Firebase
+    this.firebaseService.getActiveApps().subscribe({
+      next: (apps) => {
+        this.apps = apps.map(app => app.name);
+        console.log('Apps carregados:', this.apps);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar apps:', error);
+        this.apps = [];
+      }
+    });
+
+    // Carrega servidores ativos do Firebase
+    this.servers$ = this.firebaseService.getActiveServers();
+    this.servers$.subscribe(servers => {
+      this.servers = servers.map(server => server.name);
+    });
+  }
+
   initForm(): void {
     this.clientForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
-      cpf: ['', [Validators.required, CustomValidators.cpf()]], // Será salvo apenas números
-      phone: ['', [Validators.required, CustomValidators.phone()]], // Será salvo apenas números
+      cpf: ['', [Validators.required, CustomValidators.cpf()]],
+      phone: ['', [Validators.required, CustomValidators.phone()]],
       address: this.fb.group({
         street: ['', Validators.required],
         city: ['', Validators.required],
@@ -68,8 +95,8 @@ export class ClientFormComponent implements OnInit {
       point: [0, CustomValidators.minValue(0)],
       recommendation: [''],
       observations: [''],
-      createdAt: [DateUtils.getCurrentISODate()], // Salva em ISO
-      date: [''], // Será convertido para ISO ao salvar
+      createdAt: [DateUtils.getCurrentISODate()],
+      date: [''],
       archived: [false],
       archivedAt: [''],
       macs: [[]],
@@ -98,7 +125,6 @@ export class ClientFormComponent implements OnInit {
     this.firebaseService.getClient(id).subscribe({
       next: (client) => {
         if (client) {
-          // Converte a data para o formato do input antes de preencher o form
           const clientData = {
             ...client,
             date: DateUtils.toInputFormat(client.date),
@@ -107,7 +133,6 @@ export class ClientFormComponent implements OnInit {
 
           this.clientForm.patchValue(clientData);
 
-          // Carregar credenciais
           if (client.credentials && client.credentials.length > 0) {
             client.credentials.forEach(cred => {
               const credGroup = this.fb.group({
@@ -133,13 +158,10 @@ export class ClientFormComponent implements OnInit {
       this.loading = true;
       const formData = this.clientForm.value;
 
-      // Prepara os dados para salvar
       const clientData = {
         ...formData,
-        // CPF e telefone já estão apenas com números graças às diretivas
         cpf: StringUtils.onlyNumbers(formData.cpf),
         phone: StringUtils.onlyNumbers(formData.phone),
-        // Converte datas para ISO
         date: formData.date ? DateUtils.toISOString(formData.date) : '',
         createdAt: this.isEditMode ? formData.createdAt : DateUtils.getCurrentISODate(),
         archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt

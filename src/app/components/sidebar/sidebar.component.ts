@@ -33,6 +33,16 @@ export class SidebarComponent implements OnInit {
       route: '/clients'
     },
     {
+      label: 'Apps',
+      icon: 'apps',
+      route: '/apps'
+    },
+    {
+      label: 'Servidores',
+      icon: 'dns',
+      route: '/servers'
+    },
+    {
       label: 'Financeiro',
       icon: 'attach_money',
       route: '/financial'

@@ -1,0 +1,73 @@
+<!-- src/app/components/app-list/app-list.component.html -->
+
+<div class="container">
+  <div class="header">
+    <div class="header-content">
+      <h1>Gerenciamento de Apps</h1>
+      <p class="subtitle">Gerencie os aplicativos disponíveis para os clientes</p>
+    </div>
+    <button class="btn-primary" (click)="createApp()">
+      <mat-icon>add</mat-icon>
+      Novo App
+    </button>
+  </div>
+
+  <div class="filters-card">
+    <div class="search-wrapper">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input type="text" [(ngModel)]="searchTerm" placeholder="Buscar por nome..." class="search-input" />
+    </div>
+  </div>
+
+  <div class="apps-list" *ngIf="apps$ | async as apps">
+    <div class="list-header">
+      <div class="col-name">Nome</div>
+      <div class="col-status">Status</div>
+      <div class="col-date">Data de Criação</div>
+      <div class="col-actions">Ações</div>
+    </div>
+
+    <div *ngFor="let app of getFilteredApps(apps)" class="app-row">
+      <div class="col-name">
+        <div class="app-info">
+          <div class="app-icon">
+            <mat-icon>apps</mat-icon>
+          </div>
+          <div class="app-details">
+            <h3 class="app-name">{{ app.name }}</h3>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-status">
+        <span class="status-badge clickable" [class.active]="app.active" [class.inactive]="!app.active"
+          (click)="toggleStatus(app)"
+          [title]="app.active ? 'Clique para desativar' : 'Clique para ativar'">
+          <mat-icon class="status-icon">{{ app.active ? 'check_circle' : 'cancel' }}</mat-icon>
+          {{ app.active ? 'Ativo' : 'Inativo' }}
+        </span>
+      </div>
+
+      <div class="col-date">
+        <span class="date-text">{{ app.createdAt | date:'dd/MM/yyyy' }}</span>
+      </div>
+
+      <div class="col-actions">
+        <div class="action-buttons">
+          <button class="btn-icon" (click)="editApp(app)" title="Editar">
+            <mat-icon>edit</mat-icon>
+          </button>
+          <button class="btn-icon btn-delete" (click)="deleteApp(app)" title="Excluir">
+            <mat-icon>delete</mat-icon>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="getFilteredApps(apps).length === 0" class="empty-state">
+      <mat-icon class="empty-icon">apps</mat-icon>
+      <h3>Nenhum app encontrado</h3>
+      <p>{{ searchTerm ? 'Tente ajustar sua busca' : 'Adicione um novo app para começar' }}</p>
+    </div>
+  </div>
+</div>
