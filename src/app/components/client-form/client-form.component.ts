@@ -7,9 +7,6 @@ import { FirebaseService } from '../../services/firebase.service';
 import { CustomValidators } from '../../validators/custom-validators';
 import { StringUtils } from '../../utils/string.utils';
 import { DateUtils } from '../../utils/date.utils';
-import { App } from '../../models/app.model';
-import { Server } from '../../models/server.model';
-import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-client-form',
@@ -25,8 +22,6 @@ export class ClientFormComponent implements OnInit {
   // Listas dinâmicas carregadas do Firebase
   apps: string[] = [];
   servers: string[] = [];
-  apps$!: Observable<App[]>;
-  servers$!: Observable<Server[]>;
 
   paymentMethods = ['Pix', 'Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência'];
   ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
@@ -64,9 +59,15 @@ export class ClientFormComponent implements OnInit {
     });
 
     // Carrega servidores ativos do Firebase
-    this.servers$ = this.firebaseService.getActiveServers();
-    this.servers$.subscribe(servers => {
-      this.servers = servers.map(server => server.name);
+    this.firebaseService.getActiveServers().subscribe({
+      next: (servers) => {
+        this.servers = servers.map(server => server.name);
+        console.log('Servidores carregados:', this.servers);
+      },
+      error: (error) => {
+        console.error('Erro ao carregar servidores:', error);
+        this.servers = [];
+      }
     });
   }
 
@@ -88,6 +89,7 @@ export class ClientFormComponent implements OnInit {
       app: [[], Validators.required],
       server: [[], Validators.required],
       credentials: this.fb.array([]),
+      macs: this.fb.array([]), // Array de MACs
       cost: [0, [Validators.required, CustomValidators.minValue(0)]],
       price: [0, [Validators.required, CustomValidators.minValue(0)]],
       paid: [false],
@@ -99,13 +101,16 @@ export class ClientFormComponent implements OnInit {
       date: [''],
       archived: [false],
       archivedAt: [''],
-      macs: [[]],
-      mac: [''],
+      mac: [''], // MAC legado (mantido para compatibilidade)
     });
   }
 
   get credentials(): FormArray {
     return this.clientForm.get('credentials') as FormArray;
+  }
+
+  get macs(): FormArray {
+    return this.clientForm.get('macs') as FormArray;
   }
 
   addCredential(): void {
@@ -118,6 +123,17 @@ export class ClientFormComponent implements OnInit {
 
   removeCredential(index: number): void {
     this.credentials.removeAt(index);
+  }
+
+  addMac(): void {
+    const macGroup = this.fb.group({
+      address: ['', [Validators.required, Validators.pattern(/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i)]]
+    });
+    this.macs.push(macGroup);
+  }
+
+  removeMac(index: number): void {
+    this.macs.removeAt(index);
   }
 
   loadClient(id: string): void {
@@ -133,6 +149,7 @@ export class ClientFormComponent implements OnInit {
 
           this.clientForm.patchValue(clientData);
 
+          // Carregar credenciais
           if (client.credentials && client.credentials.length > 0) {
             client.credentials.forEach(cred => {
               const credGroup = this.fb.group({
@@ -140,6 +157,18 @@ export class ClientFormComponent implements OnInit {
                 password: [cred.password, Validators.required]
               });
               this.credentials.push(credGroup);
+            });
+          }
+
+          // Carregar MACs
+          if (client.macs && client.macs.length > 0) {
+            client.macs.forEach((mac: any) => {
+              // Suporta tanto formato de objeto {address: 'XX:XX'} quanto string direta 'XX:XX'
+              const macAddress = typeof mac === 'string' ? mac : (mac.address || '');
+              const macGroup = this.fb.group({
+                address: [macAddress, [Validators.required, Validators.pattern(/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i)]]
+              });
+              this.macs.push(macGroup);
             });
           }
         }
@@ -158,13 +187,17 @@ export class ClientFormComponent implements OnInit {
       this.loading = true;
       const formData = this.clientForm.value;
 
+      // Processa os MACs para salvar como array de strings
+      const macsArray = formData.macs?.map((mac: any) => mac.address) || [];
+
       const clientData = {
         ...formData,
         cpf: StringUtils.onlyNumbers(formData.cpf),
         phone: StringUtils.onlyNumbers(formData.phone),
         date: formData.date ? DateUtils.toISOString(formData.date) : '',
         createdAt: this.isEditMode ? formData.createdAt : DateUtils.getCurrentISODate(),
-        archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt
+        archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt,
+        macs: macsArray // Salva como array de strings
       };
 
       try {

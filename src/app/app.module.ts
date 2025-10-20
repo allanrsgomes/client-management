@@ -23,6 +23,7 @@ import { ServerListComponent } from './components/server-list/server-list.compon
 // Directives
 import { CpfMaskDirective } from './directives/cpf-mask.directive';
 import { PhoneMaskDirective } from './directives/phone-mask.directive';
+import { MacMaskDirective } from './directives/mac-mask.directive';
 
 // Services
 import { FirebaseService } from './services/firebase.service';
@@ -63,6 +64,7 @@ const firebaseConfig = {
     LayoutComponent,
     CpfMaskDirective,
     PhoneMaskDirective,
+    MacMaskDirective,
     CpfPipe,
     PhonePipe,
     DateBrPipe,

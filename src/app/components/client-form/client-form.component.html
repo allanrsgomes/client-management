@@ -104,37 +104,57 @@
       <div class="form-row">
         <div class="form-group">
           <label>Apps *</label>
-          <div class="checkbox-group">
+          <div class="checkbox-group" *ngIf="apps.length > 0; else loadingApps">
             <label *ngFor="let app of apps" class="checkbox-label">
               <input type="checkbox" [value]="app" [checked]="clientForm.get('app')?.value?.includes(app)"
                 (change)="onAppChange($event, app)" />
               {{ app }}
             </label>
           </div>
+          <ng-template #loadingApps>
+            <div class="loading-container">
+              <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+              <span>Carregando apps...</span>
+            </div>
+          </ng-template>
           <span class="error-message" *ngIf="clientForm.get('app')?.invalid && clientForm.get('app')?.touched">
             Selecione pelo menos um app
           </span>
+          <div class="info-message" *ngIf="apps.length === 0 && !loading">
+            <mat-icon>info</mat-icon>
+            <span>Nenhum app cadastrado. <a routerLink="/apps">Cadastre apps aqui</a></span>
+          </div>
         </div>
 
         <div class="form-group">
           <label>Servidores *</label>
-          <div class="checkbox-group">
+          <div class="checkbox-group" *ngIf="servers.length > 0; else loadingServers">
             <label *ngFor="let server of servers" class="checkbox-label">
               <input type="checkbox" [value]="server" [checked]="clientForm.get('server')?.value?.includes(server)"
                 (change)="onServerChange($event, server)" />
               {{ server }}
             </label>
           </div>
+          <ng-template #loadingServers>
+            <div class="loading-container">
+              <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+              <span>Carregando servidores...</span>
+            </div>
+          </ng-template>
           <span class="error-message" *ngIf="clientForm.get('server')?.invalid && clientForm.get('server')?.touched">
             Selecione pelo menos um servidor
           </span>
+          <div class="info-message" *ngIf="servers.length === 0 && !loading">
+            <mat-icon>info</mat-icon>
+            <span>Nenhum servidor cadastrado. <a routerLink="/servers">Cadastre servidores aqui</a></span>
+          </div>
         </div>
       </div>
     </div>
 
     <!-- Credenciais -->
     <div class="form-section">
-      <h2>Credenciais</h2>
+      <h2>Credenciais de Acesso</h2>
 
       <div formArrayName="credentials">
         <div *ngFor="let credential of credentials.controls; let i = index" [formGroupName]="i" class="credential-row">
@@ -158,6 +178,43 @@
       <button type="button" class="btn-add" (click)="addCredential()">
         <mat-icon>add</mat-icon>
         Adicionar Credencial
+      </button>
+    </div>
+
+    <!-- MACs -->
+    <div class="form-section">
+      <h2>Endereços MAC</h2>
+      <p class="section-description">Adicione os endereços MAC dos dispositivos do cliente (formato: AA:BB:CC:DD:EE:FF)</p>
+
+      <div formArrayName="macs">
+        <div *ngFor="let mac of macs.controls; let i = index" [formGroupName]="i" class="mac-row">
+          <div class="form-group mac-input-group">
+            <label>MAC Address {{ i + 1 }}</label>
+            <input
+              type="text"
+              formControlName="address"
+              class="form-control mac-input"
+              placeholder="AA:BB:CC:DD:EE:FF"
+              appMacMask
+              [class.error]="mac.get('address')?.invalid && mac.get('address')?.touched"
+              maxlength="17" />
+            <span class="error-message" *ngIf="mac.get('address')?.invalid && mac.get('address')?.touched">
+              <mat-icon>error</mat-icon>
+              <span *ngIf="mac.get('address')?.errors?.['required']">MAC é obrigatório</span>
+              <span *ngIf="mac.get('address')?.errors?.['pattern']">Formato inválido (use AA:BB:CC:DD:EE:FF)</span>
+            </span>
+          </div>
+
+          <button type="button" class="btn-remove" (click)="removeMac(i)">
+            <mat-icon>delete</mat-icon>
+            Remover
+          </button>
+        </div>
+      </div>
+
+      <button type="button" class="btn-add" (click)="addMac()">
+        <mat-icon>add</mat-icon>
+        Adicionar MAC Address
       </button>
     </div>
 

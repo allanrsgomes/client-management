@@ -84,4 +84,17 @@ export class ClientViewComponent implements OnInit {
       }
     }
   }
+
+  // Formata o MAC para exibição
+  formatMac(mac: any): string {
+    // Se for string, retorna direto
+    if (typeof mac === 'string') {
+      return mac.toUpperCase();
+    }
+    // Se for objeto com propriedade address
+    if (mac && mac.address) {
+      return mac.address.toUpperCase();
+    }
+    return 'N/A';
+  }
 }

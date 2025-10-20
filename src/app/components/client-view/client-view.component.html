@@ -116,6 +116,18 @@
       </div>
     </div>
 
+    <!-- Endereços MAC -->
+    <div class="info-section" *ngIf="client.macs && client.macs.length > 0">
+      <h3>Endereços MAC</h3>
+
+      <div class="macs-list">
+        <div *ngFor="let mac of client.macs; let i = index" class="mac-card">
+          <div class="mac-number">MAC Address {{ i + 1 }}</div>
+          <div class="mac-address">{{ formatMac(mac) }}</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Informações Financeiras -->
     <div class="info-section">
       <h3>Informações Financeiras</h3>
@@ -156,23 +168,6 @@
         <div class="info-item full-width" *ngIf="client.observations">
           <span class="info-label">Observações:</span>
           <span class="info-value">{{ client.observations }}</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Informações Técnicas -->
-    <div class="info-section" *ngIf="client.mac || (client.macs && client.macs.length > 0)">
-      <h3>Informações Técnicas</h3>
-
-      <div class="info-grid">
-        <div class="info-item" *ngIf="client.mac">
-          <span class="info-label">MAC Address:</span>
-          <span class="info-value">{{ client.mac }}</span>
-        </div>
-
-        <div class="info-item full-width" *ngIf="client.macs && client.macs.length > 0">
-          <span class="info-label">MACs Registrados:</span>
-          <span class="info-value">{{ client.macs.join(', ') }}</span>
         </div>
       </div>
     </div>
