@@ -240,3 +240,301 @@ body.dark textarea,
 body.dark select {
   color-scheme: dark;
 }
+
+
+// Estilos personalizados para Snackbar - adaptáveis ao tema
+.snackbar-success {
+  .mdc-snackbar__surface {
+    background: linear-gradient(135deg, var(--success) 0%, #059669 100%) !important;
+    box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3) !important;
+    border-radius: var(--border-radius-sm) !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+.snackbar-error {
+  .mdc-snackbar__surface {
+    background: linear-gradient(135deg, var(--danger) 0%, #dc2626 100%) !important;
+    box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3) !important;
+    border-radius: var(--border-radius-sm) !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+.snackbar-warning {
+  .mdc-snackbar__surface {
+    background: linear-gradient(135deg, var(--warning) 0%, #d97706 100%) !important;
+    box-shadow: 0 8px 16px rgba(245, 158, 11, 0.3) !important;
+    border-radius: var(--border-radius-sm) !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+.snackbar-info {
+  .mdc-snackbar__surface {
+    background: linear-gradient(135deg, var(--info) 0%, #2563eb 100%) !important;
+    box-shadow: 0 8px 16px rgba(59, 130, 246, 0.3) !important;
+    border-radius: var(--border-radius-sm) !important;
+  }
+
+  .mat-mdc-snack-bar-label {
+    color: white !important;
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .mat-mdc-button {
+    color: white !important;
+    font-weight: 600;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.15) !important;
+    }
+  }
+}
+
+// Estilos personalizados para Dialog - adaptáveis ao tema
+.custom-dialog-container {
+  .mat-mdc-dialog-container {
+    .mdc-dialog__surface {
+      background: var(--bg-primary) !important;
+      color: var(--text-primary) !important;
+      border-radius: var(--border-radius-lg) !important;
+      box-shadow: var(--shadow-xl) !important;
+      border: 1px solid var(--border-color);
+    }
+  }
+}
+
+// Dark mode específico para dialogs
+body.dark {
+  .custom-dialog-container {
+    .mat-mdc-dialog-container {
+      .mdc-dialog__surface {
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6) !important;
+      }
+    }
+  }
+
+  // Ajustes para snackbar no dark mode
+  .snackbar-success .mdc-snackbar__surface {
+    box-shadow: 0 8px 16px rgba(52, 211, 153, 0.4) !important;
+  }
+
+  .snackbar-error .mdc-snackbar__surface {
+    box-shadow: 0 8px 16px rgba(248, 113, 113, 0.4) !important;
+  }
+
+  .snackbar-warning .mdc-snackbar__surface {
+    box-shadow: 0 8px 16px rgba(251, 191, 36, 0.4) !important;
+  }
+
+  .snackbar-info .mdc-snackbar__surface {
+    box-shadow: 0 8px 16px rgba(96, 165, 250, 0.4) !important;
+  }
+}
+
+
+.mat-mdc-form-field {
+
+  // Background do input
+  .mdc-text-field {
+    background-color: var(--bg-secondary) !important;
+    transition: var(--transition);
+
+    &:hover:not(.mdc-text-field--focused) {
+      background-color: var(--bg-tertiary) !important;
+    }
+  }
+
+  .mdc-text-field--focused {
+    background-color: var(--bg-primary) !important;
+  }
+
+  .mat-mdc-form-field-focus-overlay {
+    background-color: transparent !important;
+  }
+
+  // Texto do input
+  input,
+  textarea {
+    color: var(--text-primary) !important;
+    caret-color: var(--primary) !important;
+  }
+
+  // Label
+  label,
+  .mat-mdc-floating-label {
+    color: var(--text-secondary) !important;
+  }
+
+  // Placeholder
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--text-tertiary) !important;
+    opacity: 1;
+  }
+
+  // Ripple effect (underline)
+  .mdc-line-ripple::after {
+    border-bottom-color: var(--primary) !important;
+  }
+
+  // Outline (borda) - estado normal
+  .mdc-notched-outline {
+
+    .mdc-notched-outline__leading,
+    .mdc-notched-outline__notch,
+    .mdc-notched-outline__trailing {
+      border-color: var(--border-color) !important;
+      border-width: 1px !important;
+      transition: var(--transition);
+    }
+  }
+
+  // Outline no hover
+  &:hover:not(.mat-focused):not(.mat-form-field-disabled) {
+    .mdc-notched-outline {
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--text-tertiary) !important;
+      }
+    }
+  }
+
+  // Outline no focus
+  &.mat-focused {
+    .mdc-notched-outline {
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--primary) !important;
+        border-width: 2px !important;
+      }
+    }
+
+    label,
+    .mat-mdc-floating-label {
+      color: var(--primary) !important;
+    }
+  }
+
+  // Estado disabled
+  &.mat-form-field-disabled {
+    opacity: 0.6;
+  }
+}
+
+// Mensagens de erro e hint
+.mat-mdc-form-field-error {
+  color: var(--danger) !important;
+}
+
+.mat-mdc-form-field-hint {
+  color: var(--text-tertiary) !important;
+}
+
+// Dark mode - ajustes específicos
+body.dark {
+  .mat-mdc-form-field {
+
+    // Input mais claro no dark mode
+    input,
+    textarea {
+      color: var(--text-primary) !important;
+    }
+
+    // Label mais clara no dark mode
+    label,
+    .mat-mdc-floating-label {
+      color: var(--text-secondary) !important;
+    }
+
+    // Placeholder mais suave
+    input::placeholder,
+    textarea::placeholder {
+      color: var(--text-tertiary) !important;
+      opacity: 0.8;
+    }
+
+    // Borda mais visível no dark mode
+    .mdc-notched-outline {
+
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--gray-600) !important;
+      }
+    }
+
+    // Hover mais visível
+    &:hover:not(.mat-focused):not(.mat-form-field-disabled) {
+      .mdc-notched-outline {
+
+        .mdc-notched-outline__leading,
+        .mdc-notched-outline__notch,
+        .mdc-notched-outline__trailing {
+          border-color: var(--gray-500) !important;
+        }
+      }
+    }
+
+    // Background mais escuro
+    .mdc-text-field {
+      background-color: var(--bg-tertiary) !important;
+
+      &:hover:not(.mdc-text-field--focused) {
+        background-color: var(--gray-700) !important;
+      }
+    }
+
+    .mdc-text-field--focused {
+      background-color: var(--bg-secondary) !important;
+    }
+  }
+}

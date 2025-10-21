@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { NotificationService } from '../../services/notification.service';
 import { ClientFilterService } from '../../services/client-filter.service';
 import { ClientSortService, SortField, SortDirection } from '../../services/client-sort.service';
 import { Client } from '../../models/client.model';
@@ -23,6 +24,7 @@ export class ClientListComponent implements OnInit {
 
   constructor(
     private firebaseService: FirebaseService,
+    private notificationService: NotificationService,
     private filterService: ClientFilterService,
     private sortService: ClientSortService,
     private router: Router
@@ -73,40 +75,79 @@ export class ClientListComponent implements OnInit {
   async togglePaymentStatus(client: Client): Promise<void> {
     if (!client.id) return;
 
-    try {
-      await this.firebaseService.updateClient(client.id, { paid: !client.paid });
-    } catch (error) {
-      console.error('Erro ao alterar status de pagamento:', error);
-      alert('Erro ao alterar status de pagamento. Tente novamente.');
-    }
+    const action = client.paid ? 'marcar como não pago' : 'marcar como pago';
+    const title = client.paid ? 'Marcar como Não Pago' : 'Marcar como Pago';
+    const message = `Deseja realmente ${action} o cliente "${client.name}"?`;
+
+    this.notificationService.confirm(
+      title,
+      message,
+      'Confirmar',
+      'Cancelar',
+      'info'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.updateClient(client.id!, { paid: !client.paid });
+          this.notificationService.success(
+            `Status de pagamento atualizado para ${!client.paid ? 'Pago' : 'Não Pago'}!`
+          );
+        } catch (error) {
+          console.error('Erro ao alterar status de pagamento:', error);
+          this.notificationService.error('Erro ao alterar status de pagamento. Tente novamente.');
+        }
+      }
+    });
   }
 
   async toggleArchive(client: Client): Promise<void> {
     if (!client.id) return;
 
     const action = client.archived ? 'desarquivar' : 'arquivar';
-    if (confirm(`Deseja realmente ${action} o cliente ${client.name}?`)) {
-      try {
-        await this.firebaseService.toggleArchiveClient(client.id, !client.archived);
-      } catch (error) {
-        console.error('Erro ao arquivar cliente:', error);
-        alert('Erro ao arquivar cliente. Tente novamente.');
+    const title = client.archived ? 'Desarquivar Cliente' : 'Arquivar Cliente';
+    const message = `Deseja realmente ${action} o cliente "${client.name}"?`;
+
+    this.notificationService.confirm(
+      title,
+      message,
+      'Confirmar',
+      'Cancelar',
+      'warning'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.toggleArchiveClient(client.id!, !client.archived);
+          this.notificationService.success(
+            `Cliente ${client.archived ? 'desarquivado' : 'arquivado'} com sucesso!`
+          );
+        } catch (error) {
+          console.error('Erro ao arquivar cliente:', error);
+          this.notificationService.error('Erro ao arquivar cliente. Tente novamente.');
+        }
       }
-    }
+    });
   }
 
   async deleteClient(client: Client): Promise<void> {
     if (!client.id) return;
 
-    if (confirm(`Deseja realmente EXCLUIR PERMANENTEMENTE o cliente ${client.name}?`)) {
-      try {
-        await this.firebaseService.deleteClient(client.id);
-        alert('Cliente excluído com sucesso!');
-      } catch (error) {
-        console.error('Erro ao deletar cliente:', error);
-        alert('Erro ao deletar cliente. Tente novamente.');
+    this.notificationService.confirm(
+      'Excluir Cliente',
+      `Deseja realmente EXCLUIR PERMANENTEMENTE o cliente "${client.name}"?\n\nAtenção: Esta ação não pode ser desfeita e todos os dados do cliente serão perdidos!`,
+      'Excluir',
+      'Cancelar',
+      'danger'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.deleteClient(client.id!);
+          this.notificationService.success('Cliente excluído com sucesso!');
+        } catch (error) {
+          console.error('Erro ao deletar cliente:', error);
+          this.notificationService.error('Erro ao deletar cliente. Tente novamente.');
+        }
       }
-    }
+    });
   }
 
   viewClient(id: string): void {

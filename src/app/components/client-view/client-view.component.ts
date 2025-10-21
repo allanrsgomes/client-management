@@ -1,8 +1,7 @@
-// src/app/components/client-view/client-view.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { NotificationService } from '../../services/notification.service';
 import { Client } from '../../models/client.model';
 
 @Component({
@@ -16,6 +15,7 @@ export class ClientViewComponent implements OnInit {
 
   constructor(
     private firebaseService: FirebaseService,
+    private notificationService: NotificationService,
     private route: ActivatedRoute,
     private router: Router
   ) {}
@@ -24,6 +24,9 @@ export class ClientViewComponent implements OnInit {
     const clientId = this.route.snapshot.paramMap.get('id');
     if (clientId) {
       this.loadClient(clientId);
+    } else {
+      this.notificationService.error('ID do cliente não encontrado.');
+      this.router.navigate(['/clients']);
     }
   }
 
@@ -36,7 +39,7 @@ export class ClientViewComponent implements OnInit {
       error: (error) => {
         console.error('Erro ao carregar cliente:', error);
         this.loading = false;
-        alert('Erro ao carregar cliente');
+        this.notificationService.error('Erro ao carregar dados do cliente.');
         this.router.navigate(['/clients']);
       }
     });
@@ -53,45 +56,74 @@ export class ClientViewComponent implements OnInit {
   }
 
   async toggleArchive(): Promise<void> {
-    if (this.client?.id) {
-      try {
-        await this.firebaseService.toggleArchiveClient(
-          this.client.id,
-          !this.client.archived
-        );
-        this.client.archived = !this.client.archived;
-        if (this.client.archived) {
-          this.client.archivedAt = new Date().toISOString().split('T')[0];
-        } else {
-          this.client.archivedAt = undefined;
+    if (!this.client?.id) return;
+
+    const action = this.client.archived ? 'desarquivar' : 'arquivar';
+    const title = this.client.archived ? 'Desarquivar Cliente' : 'Arquivar Cliente';
+    const message = `Deseja realmente ${action} o cliente "${this.client.name}"?`;
+
+    this.notificationService.confirm(
+      title,
+      message,
+      'Confirmar',
+      'Cancelar',
+      'warning'
+    ).subscribe(async confirmed => {
+      if (confirmed && this.client?.id) {
+        try {
+          await this.firebaseService.toggleArchiveClient(
+            this.client.id,
+            !this.client.archived
+          );
+
+          this.client.archived = !this.client.archived;
+          if (this.client.archived) {
+            this.client.archivedAt = new Date().toISOString().split('T')[0];
+          } else {
+            this.client.archivedAt = undefined;
+          }
+
+          this.notificationService.success(
+            `Cliente ${this.client.archived ? 'arquivado' : 'desarquivado'} com sucesso!`
+          );
+        } catch (error) {
+          console.error('Erro ao arquivar/desarquivar cliente:', error);
+          this.notificationService.error(
+            `Erro ao ${action} cliente. Tente novamente.`
+          );
         }
-      } catch (error) {
-        console.error('Erro ao arquivar cliente:', error);
-        alert('Erro ao arquivar cliente');
       }
-    }
+    });
   }
 
   async deleteClient(): Promise<void> {
-    if (this.client?.id && confirm(`Deseja realmente excluir o cliente ${this.client.name}?`)) {
-      try {
-        await this.firebaseService.deleteClient(this.client.id);
-        alert('Cliente excluído com sucesso!');
-        this.router.navigate(['/clients']);
-      } catch (error) {
-        console.error('Erro ao deletar cliente:', error);
-        alert('Erro ao deletar cliente');
+    if (!this.client?.id) return;
+
+    this.notificationService.confirm(
+      'Excluir Cliente',
+      `Deseja realmente excluir o cliente "${this.client.name}"?\n\nAtenção: Esta ação não pode ser desfeita e todos os dados serão perdidos permanentemente!`,
+      'Excluir',
+      'Cancelar',
+      'danger'
+    ).subscribe(async confirmed => {
+      if (confirmed && this.client?.id) {
+        try {
+          await this.firebaseService.deleteClient(this.client.id);
+          this.notificationService.success('Cliente excluído com sucesso!');
+          this.router.navigate(['/clients']);
+        } catch (error) {
+          console.error('Erro ao deletar cliente:', error);
+          this.notificationService.error('Erro ao excluir cliente. Tente novamente.');
+        }
       }
-    }
+    });
   }
 
-  // Formata o MAC para exibição
   formatMac(mac: any): string {
-    // Se for string, retorna direto
     if (typeof mac === 'string') {
       return mac.toUpperCase();
     }
-    // Se for objeto com propriedade address
+
     if (mac && mac.address) {
       return mac.address.toUpperCase();
     }

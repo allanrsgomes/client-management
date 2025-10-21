@@ -1,0 +1,36 @@
+<div class="dialog-container">
+  <div class="dialog-header">
+    <h2 class="dialog-title">{{ data.title }}</h2>
+    <button class="close-button" (click)="onCancel()" mat-icon-button>
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+
+  <div class="dialog-content">
+    <mat-form-field class="full-width" appearance="outline">
+      <mat-label>{{ data.label }}</mat-label>
+      <input
+        matInput
+        [formControl]="inputControl"
+        (keydown)="onEnter($event)"
+        autofocus
+      />
+      <mat-error *ngIf="inputControl.hasError('required')">
+        Este campo é obrigatório
+      </mat-error>
+    </mat-form-field>
+  </div>
+
+  <div class="dialog-actions">
+    <button class="btn-secondary" (click)="onCancel()">
+      Cancelar
+    </button>
+    <button
+      class="btn-primary"
+      (click)="onConfirm()"
+      [disabled]="inputControl.invalid"
+    >
+      Confirmar
+    </button>
+  </div>
+</div>

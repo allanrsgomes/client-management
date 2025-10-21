@@ -1,0 +1,228 @@
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialog-header {
+  position: relative;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: center;
+  transition: var(--transition);
+
+  &.header-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(220, 38, 38, 0.04) 100%);
+  }
+
+  &.header-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.08) 0%, rgba(217, 119, 6, 0.04) 100%);
+  }
+
+  &.header-info {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(37, 99, 235, 0.04) 100%);
+  }
+}
+
+body.dark {
+  .dialog-header {
+    &.header-danger {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(220, 38, 38, 0.08) 100%);
+    }
+
+    &.header-warning {
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.08) 100%);
+    }
+
+    &.header-info {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.08) 100%);
+    }
+  }
+}
+
+.dialog-icon-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+
+  .dialog-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    animation: scaleIn 0.3s ease-out;
+  }
+
+  .header-danger & .dialog-icon {
+    color: var(--danger);
+  }
+
+  .header-warning & .dialog-icon {
+    color: var(--warning);
+  }
+
+  .header-info & .dialog-icon {
+    color: var(--info);
+  }
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  padding-right: 40px;
+  text-align: center;
+  display: contents;
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    transform: rotate(90deg);
+    background: var(--bg-secondary);
+  }
+}
+
+.dialog-content {
+  padding: 24px;
+  flex: 1;
+  background: var(--bg-primary);
+}
+
+.dialog-message {
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--text-secondary);
+  margin: 0;
+  text-align: center;
+  white-space: pre-line;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  justify-content: flex-end;
+  background: var(--bg-primary);
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 10px 24px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  outline: none;
+  min-width: 100px;
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--gray-400);
+  }
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+
+  &:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &.btn-danger {
+    background: var(--danger);
+
+    &:hover {
+      background: #dc2626;
+    }
+  }
+
+  &.btn-warning {
+    background: var(--warning);
+
+    &:hover {
+      background: #d97706;
+    }
+  }
+
+  &.btn-info {
+    background: var(--info);
+
+    &:hover {
+      background: #2563eb;
+    }
+  }
+}
+
+body.dark {
+  .btn-secondary {
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--gray-500);
+    }
+  }
+
+  .btn-primary {
+    &.btn-danger:hover {
+      background: #b91c1c;
+    }
+
+    &.btn-warning:hover {
+      background: #b45309;
+    }
+
+    &.btn-info:hover {
+      background: #1d4ed8;
+    }
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-actions {
+    flex-direction: column-reverse;
+
+    .btn-secondary,
+    .btn-primary {
+      width: 100%;
+    }
+  }
+}

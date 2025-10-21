@@ -1,9 +1,8 @@
-// src/app/components/client-form/client-form.component.ts
-
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { NotificationService } from '../../services/notification.service';
 import { CustomValidators } from '../../validators/custom-validators';
 import { StringUtils } from '../../utils/string.utils';
 import { DateUtils } from '../../utils/date.utils';
@@ -18,8 +17,6 @@ export class ClientFormComponent implements OnInit {
   isEditMode = false;
   clientId: string | null = null;
   loading = false;
-
-  // Listas dinâmicas carregadas do Firebase
   apps: string[] = [];
   servers: string[] = [];
 
@@ -29,6 +26,7 @@ export class ClientFormComponent implements OnInit {
   constructor(
     private fb: FormBuilder,
     private firebaseService: FirebaseService,
+    private notificationService: NotificationService,
     private route: ActivatedRoute,
     private router: Router
   ) { }
@@ -46,7 +44,6 @@ export class ClientFormComponent implements OnInit {
   }
 
   loadAppsAndServers(): void {
-    // Carrega apps ativos do Firebase
     this.firebaseService.getActiveApps().subscribe({
       next: (apps) => {
         this.apps = apps.map(app => app.name);
@@ -54,11 +51,11 @@ export class ClientFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar apps:', error);
+        this.notificationService.error('Erro ao carregar lista de apps.');
         this.apps = [];
       }
     });
 
-    // Carrega servidores ativos do Firebase
     this.firebaseService.getActiveServers().subscribe({
       next: (servers) => {
         this.servers = servers.map(server => server.name);
@@ -66,6 +63,7 @@ export class ClientFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar servidores:', error);
+        this.notificationService.error('Erro ao carregar lista de servidores.');
         this.servers = [];
       }
     });
@@ -89,7 +87,7 @@ export class ClientFormComponent implements OnInit {
       app: [[], Validators.required],
       server: [[], Validators.required],
       credentials: this.fb.array([]),
-      macs: this.fb.array([]), // Array de MACs
+      macs: this.fb.array([]),
       cost: [0, [Validators.required, CustomValidators.minValue(0)]],
       price: [0, [Validators.required, CustomValidators.minValue(0)]],
       paid: [false],
@@ -101,7 +99,7 @@ export class ClientFormComponent implements OnInit {
       date: [''],
       archived: [false],
       archivedAt: [''],
-      mac: [''], // MAC legado (mantido para compatibilidade)
+      mac: [''],
     });
   }
 
@@ -122,7 +120,18 @@ export class ClientFormComponent implements OnInit {
   }
 
   removeCredential(index: number): void {
-    this.credentials.removeAt(index);
+    this.notificationService.confirm(
+      'Remover Credencial',
+      'Deseja realmente remover esta credencial?',
+      'Remover',
+      'Cancelar',
+      'warning'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.credentials.removeAt(index);
+        this.notificationService.success('Credencial removida!');
+      }
+    });
   }
 
   addMac(): void {
@@ -133,7 +142,18 @@ export class ClientFormComponent implements OnInit {
   }
 
   removeMac(index: number): void {
-    this.macs.removeAt(index);
+    this.notificationService.confirm(
+      'Remover MAC Address',
+      'Deseja realmente remover este MAC address?',
+      'Remover',
+      'Cancelar',
+      'warning'
+    ).subscribe(confirmed => {
+      if (confirmed) {
+        this.macs.removeAt(index);
+        this.notificationService.success('MAC address removido!');
+      }
+    });
   }
 
   loadClient(id: string): void {
@@ -149,7 +169,6 @@ export class ClientFormComponent implements OnInit {
 
           this.clientForm.patchValue(clientData);
 
-          // Carregar credenciais
           if (client.credentials && client.credentials.length > 0) {
             client.credentials.forEach(cred => {
               const credGroup = this.fb.group({
@@ -160,10 +179,8 @@ export class ClientFormComponent implements OnInit {
             });
           }
 
-          // Carregar MACs
           if (client.macs && client.macs.length > 0) {
             client.macs.forEach((mac: any) => {
-              // Suporta tanto formato de objeto {address: 'XX:XX'} quanto string direta 'XX:XX'
               const macAddress = typeof mac === 'string' ? mac : (mac.address || '');
               const macGroup = this.fb.group({
                 address: [macAddress, [Validators.required, Validators.pattern(/^([0-9A-F]{2}:){5}[0-9A-F]{2}$/i)]]
@@ -177,7 +194,9 @@ export class ClientFormComponent implements OnInit {
       },
       error: (error) => {
         console.error('Erro ao carregar cliente:', error);
+        this.notificationService.error('Erro ao carregar dados do cliente.');
         this.loading = false;
+        this.router.navigate(['/clients']);
       }
     });
   }
@@ -186,10 +205,7 @@ export class ClientFormComponent implements OnInit {
     if (this.clientForm.valid) {
       this.loading = true;
       const formData = this.clientForm.value;
-
-      // Processa os MACs para salvar como array de strings
       const macsArray = formData.macs?.map((mac: any) => mac.address) || [];
-
       const clientData = {
         ...formData,
         cpf: StringUtils.onlyNumbers(formData.cpf),
@@ -197,26 +213,26 @@ export class ClientFormComponent implements OnInit {
         date: formData.date ? DateUtils.toISOString(formData.date) : '',
         createdAt: this.isEditMode ? formData.createdAt : DateUtils.getCurrentISODate(),
         archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt,
-        macs: macsArray // Salva como array de strings
+        macs: macsArray
       };
 
       try {
         if (this.isEditMode && this.clientId) {
           await this.firebaseService.updateClient(this.clientId, clientData);
-          alert('Cliente atualizado com sucesso!');
+          this.notificationService.success('Cliente atualizado com sucesso!');
         } else {
           await this.firebaseService.createClient(clientData);
-          alert('Cliente criado com sucesso!');
+          this.notificationService.success('Cliente criado com sucesso!');
         }
         this.router.navigate(['/clients']);
       } catch (error) {
         console.error('Erro ao salvar cliente:', error);
-        alert('Erro ao salvar cliente. Tente novamente.');
+        this.notificationService.error('Erro ao salvar cliente. Tente novamente.');
       } finally {
         this.loading = false;
       }
     } else {
-      alert('Por favor, preencha todos os campos obrigatórios corretamente.');
+      this.notificationService.warning('Por favor, preencha todos os campos obrigatórios corretamente.');
       this.markFormGroupTouched(this.clientForm);
     }
   }
@@ -233,7 +249,21 @@ export class ClientFormComponent implements OnInit {
   }
 
   cancel(): void {
-    this.router.navigate(['/clients']);
+    if (this.clientForm.dirty) {
+      this.notificationService.confirm(
+        'Cancelar Edição',
+        'Você tem alterações não salvas. Deseja realmente cancelar?',
+        'Sim, cancelar',
+        'Continuar editando',
+        'warning'
+      ).subscribe(confirmed => {
+        if (confirmed) {
+          this.router.navigate(['/clients']);
+        }
+      });
+    } else {
+      this.router.navigate(['/clients']);
+    }
   }
 
   onAppChange(event: any, app: string): void {

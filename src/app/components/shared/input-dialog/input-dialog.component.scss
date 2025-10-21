@@ -1,0 +1,134 @@
+.dialog-container {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.dialog-header {
+  position: relative;
+  padding: 24px 24px 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.05) 0%, transparent 100%);
+  transition: var(--transition);
+}
+
+body.dark {
+  .dialog-header {
+    background: linear-gradient(135deg, rgba(129, 140, 248, 0.1) 0%, transparent 100%);
+  }
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  padding-right: 40px;
+  text-align: center;
+  display: contents;
+}
+
+.close-button {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--text-secondary);
+  transition: var(--transition);
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+  }
+
+  &:hover {
+    color: var(--text-primary);
+    transform: rotate(90deg);
+    background: var(--bg-secondary);
+  }
+}
+
+.dialog-content {
+  padding: 24px;
+  flex: 1;
+  background: var(--bg-primary);
+}
+
+.full-width {
+  width: 100%;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  padding: 16px 24px 24px;
+  justify-content: flex-end;
+  background: var(--bg-primary);
+}
+
+.btn-secondary,
+.btn-primary {
+  padding: 10px 24px;
+  border-radius: var(--border-radius-sm);
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition);
+  border: none;
+  outline: none;
+  min-width: 100px;
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+.btn-secondary {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+
+  &:hover {
+    background: var(--bg-tertiary);
+    border-color: var(--gray-400);
+  }
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+  box-shadow: var(--shadow-sm);
+
+  &:hover:not(:disabled) {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+body.dark {
+  .btn-secondary {
+    &:hover {
+      background: var(--bg-tertiary);
+      border-color: var(--gray-500);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .dialog-actions {
+    flex-direction: column-reverse;
+
+    .btn-secondary,
+    .btn-primary {
+      width: 100%;
+    }
+  }
+}
+
+

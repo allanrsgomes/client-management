@@ -1,8 +1,8 @@
-// src/app/components/server-list/server-list.component.ts
 
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
+import { NotificationService } from '../../services/notification.service';
 import { Server } from '../../models/server.model';
 import { Observable } from 'rxjs';
 
@@ -17,6 +17,7 @@ export class ServerListComponent implements OnInit {
 
   constructor(
     private firebaseService: FirebaseService,
+    private notificationService: NotificationService,
     private router: Router
   ) {}
 
@@ -29,63 +30,102 @@ export class ServerListComponent implements OnInit {
   }
 
   createServer(): void {
-    const name = prompt('Nome do Servidor:');
-    if (name && name.trim()) {
-      const newServer: Omit<Server, 'id'> = {
-        name: name.trim(),
-        active: true,
-        createdAt: new Date().toISOString()
-      };
+    this.notificationService.prompt(
+      'Criar Novo Servidor',
+      'Nome do Servidor',
+      '',
+      'Digite o nome do servidor...',
+      true
+    ).subscribe(name => {
+      if (name && name.trim()) {
+        const newServer: Omit<Server, 'id'> = {
+          name: name.trim(),
+          active: true,
+          createdAt: new Date().toISOString()
+        };
 
-      this.firebaseService.createServer(newServer)
-        .then(() => {
-          alert('Servidor criado com sucesso!');
-        })
-        .catch(error => {
-          console.error('Erro ao criar servidor:', error);
-          alert('Erro ao criar servidor. Tente novamente.');
-        });
-    }
+        this.firebaseService.createServer(newServer)
+          .then(() => {
+            this.notificationService.success('Servidor criado com sucesso!');
+          })
+          .catch(error => {
+            console.error('Erro ao criar servidor:', error);
+            this.notificationService.error('Erro ao criar servidor. Tente novamente.');
+          });
+      }
+    });
   }
 
   async editServer(server: Server): Promise<void> {
     if (!server.id) return;
 
-    const newName = prompt('Editar nome do Servidor:', server.name);
-    if (newName && newName.trim() && newName !== server.name) {
-      try {
-        await this.firebaseService.updateServer(server.id, { name: newName.trim() });
-        alert('Servidor atualizado com sucesso!');
-      } catch (error) {
-        console.error('Erro ao atualizar servidor:', error);
-        alert('Erro ao atualizar servidor. Tente novamente.');
+    this.notificationService.prompt(
+      'Editar Servidor',
+      'Nome do Servidor',
+      server.name,
+      'Digite o novo nome...',
+      true
+    ).subscribe(async newName => {
+      if (newName && newName.trim() && newName !== server.name) {
+        try {
+          await this.firebaseService.updateServer(server.id!, { name: newName.trim() });
+          this.notificationService.success('Servidor atualizado com sucesso!');
+        } catch (error) {
+          console.error('Erro ao atualizar servidor:', error);
+          this.notificationService.error('Erro ao atualizar servidor. Tente novamente.');
+        }
       }
-    }
+    });
   }
 
   async toggleStatus(server: Server): Promise<void> {
     if (!server.id) return;
 
-    try {
-      await this.firebaseService.toggleServerStatus(server.id, !server.active);
-    } catch (error) {
-      console.error('Erro ao alterar status:', error);
-      alert('Erro ao alterar status. Tente novamente.');
-    }
+    const action = server.active ? 'desativar' : 'ativar';
+    const title = server.active ? 'Desativar Servidor' : 'Ativar Servidor';
+    const message = `Deseja realmente ${action} o servidor "${server.name}"?`;
+
+    this.notificationService.confirm(
+      title,
+      message,
+      'Confirmar',
+      'Cancelar',
+      'warning'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.toggleServerStatus(server.id!, !server.active);
+          this.notificationService.success(
+            `Servidor ${server.active ? 'desativado' : 'ativado'} com sucesso!`
+          );
+        } catch (error) {
+          console.error('Erro ao alterar status:', error);
+          this.notificationService.error('Erro ao alterar status. Tente novamente.');
+        }
+      }
+    });
   }
 
   async deleteServer(server: Server): Promise<void> {
     if (!server.id) return;
 
-    if (confirm(`Deseja realmente excluir o servidor "${server.name}"?\n\nAtenção: Esta ação não pode ser desfeita!`)) {
-      try {
-        await this.firebaseService.deleteServer(server.id);
-        alert('Servidor excluído com sucesso!');
-      } catch (error) {
-        console.error('Erro ao deletar servidor:', error);
-        alert('Erro ao deletar servidor. Tente novamente.');
+    this.notificationService.confirm(
+      'Excluir Servidor',
+      `Deseja realmente excluir o servidor "${server.name}"?\n\nAtenção: Esta ação não pode ser desfeita!`,
+      'Excluir',
+      'Cancelar',
+      'danger'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.deleteServer(server.id!);
+          this.notificationService.success('Servidor excluído com sucesso!');
+        } catch (error) {
+          console.error('Erro ao deletar servidor:', error);
+          this.notificationService.error('Erro ao deletar servidor. Tente novamente.');
+        }
       }
-    }
+    });
   }
 
   getFilteredServers(servers: Server[]): Server[] {

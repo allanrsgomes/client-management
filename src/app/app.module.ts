@@ -3,13 +3,16 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
 import { MatIconModule } from '@angular/material/icon';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 import { AngularFireModule } from '@angular/fire/compat';
 import { AngularFirestoreModule } from '@angular/fire/compat/firestore';
 import { AngularFireAuthModule } from '@angular/fire/compat/auth';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-
-// Components
 import { ClientListComponent } from './components/client-list/client-list.component';
 import { ClientFormComponent } from './components/client-form/client-form.component';
 import { ClientViewComponent } from './components/client-view/client-view.component';
@@ -19,28 +22,21 @@ import { SidebarComponent } from './components/sidebar/sidebar.component';
 import { LayoutComponent } from './components/layout/layout.component';
 import { AppListComponent } from './components/app-list/app-list.component';
 import { ServerListComponent } from './components/server-list/server-list.component';
-
-// Directives
 import { CpfMaskDirective } from './directives/cpf-mask.directive';
 import { PhoneMaskDirective } from './directives/phone-mask.directive';
 import { MacMaskDirective } from './directives/mac-mask.directive';
-
-// Services
 import { FirebaseService } from './services/firebase.service';
 import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 import { SidebarService } from './services/sidebar.service';
 import { ClientFilterService } from './services/client-filter.service';
 import { ClientSortService } from './services/client-sort.service';
-
-// Pipes
 import { CpfPipe } from './pipes/cpf.pipe';
 import { PhonePipe } from './pipes/phone.pipe';
 import { DateBrPipe } from './pipes/date-br.pipe';
-
-// Guards
 import { AuthGuard } from './guards/auth.guard';
-
+import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confirm-dialog.component';
+import { InputDialogComponent } from './components/shared/input-dialog/input-dialog.component';
 
 const firebaseConfig = {
   apiKey: "AIzaSyDpTyQxGsNPwV7W7zvYuEk5c9eAYmbRc9c",
@@ -69,7 +65,10 @@ const firebaseConfig = {
     PhonePipe,
     DateBrPipe,
     AppListComponent,
-    ServerListComponent
+    ServerListComponent,
+    ConfirmDialogComponent,
+    InputDialogComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -80,7 +79,12 @@ const firebaseConfig = {
     MatIconModule,
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule,
-    AngularFireAuthModule
+    AngularFireAuthModule,
+    MatSnackBarModule,
+    MatDialogModule,
+    MatButtonModule,
+    MatFormFieldModule,
+    MatInputModule
   ],
   providers: [
     FirebaseService,
