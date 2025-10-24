@@ -72,6 +72,36 @@ export class ClientListComponent implements OnInit {
     this.loadClients();
   }
 
+  async renewClient(client: Client): Promise<void> {
+    if (!client.id) return;
+
+    const currentDate = client.date ? DateUtils.formatToBrazilian(client.date) : 'Sem data';
+    const newDate = DateUtils.renewExpiryDate(client.date);
+    const newDateFormatted = DateUtils.formatToBrazilian(newDate);
+
+    this.notificationService.confirm(
+      'Renovar Cliente',
+      `Deseja renovar o cliente "${client.name}"?\n\nData atual: ${currentDate}\nNova data: ${newDateFormatted}`,
+      'Renovar',
+      'Cancelar',
+      'info'
+    ).subscribe(async confirmed => {
+      if (confirmed) {
+        try {
+          await this.firebaseService.updateClient(client.id!, {
+            date: newDate
+          });
+          this.notificationService.success(
+            `Cliente renovado com sucesso! Nova data de vencimento: ${newDateFormatted}`
+          );
+        } catch (error) {
+          console.error('Erro ao renovar cliente:', error);
+          this.notificationService.error('Erro ao renovar cliente. Tente novamente.');
+        }
+      }
+    });
+  }
+
   async togglePaymentStatus(client: Client): Promise<void> {
     if (!client.id) return;
 

@@ -1,5 +1,3 @@
-// src/app/utils/date.utils.ts
-
 export class DateUtils {
   /**
    * Calcula quantos dias faltam até uma data
@@ -80,6 +78,51 @@ export class DateUtils {
     const day = String(today.getDate()).padStart(2, '0');
 
     return `${year}-${month}-${day}`;
+  }
+
+  /**
+   * Adiciona meses a uma data e retorna no formato ISO
+   */
+  static addMonths(dateString: string | undefined, months: number): string {
+    if (!dateString) {
+      // Se não tem data, usa a data atual
+      const today = new Date();
+      today.setMonth(today.getMonth() + months);
+      return today.toISOString();
+    }
+
+    const date = new Date(dateString);
+
+    // Adiciona os meses
+    date.setMonth(date.getMonth() + months);
+
+    // Retorna no formato ISO
+    return date.toISOString();
+  }
+
+  /**
+   * Renova a data de vencimento adicionando 1 mês
+   * Se a data já venceu, adiciona 1 mês a partir de hoje
+   * Se ainda não venceu, adiciona 1 mês à data atual
+   */
+  static renewExpiryDate(currentDateString: string | undefined): string {
+    // Se não tem data, cria uma nova com 1 mês a partir de hoje
+    if (!currentDateString) {
+      return this.addMonths(this.getCurrentISODate(), 1);
+    }
+
+    const currentDate = new Date(currentDateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    currentDate.setHours(0, 0, 0, 0);
+
+    // Se a data já venceu, renova a partir de hoje
+    if (currentDate < today) {
+      return this.addMonths(this.getCurrentISODate(), 1);
+    }
+
+    // Se ainda não venceu, adiciona 1 mês à data atual
+    return this.addMonths(currentDateString, 1);
   }
 
   /**
