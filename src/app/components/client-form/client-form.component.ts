@@ -57,7 +57,7 @@ export class ClientFormComponent implements OnInit {
 
     // Observa mudanças no campo de pontos
     this.clientForm.get('point')?.valueChanges.subscribe(points => {
-      this.calculatePrice(points);
+      this.updatePricePerPoint(points);
     });
   }
 
@@ -107,7 +107,7 @@ export class ClientFormComponent implements OnInit {
       credentials: this.fb.array([]),
       macs: this.fb.array([]),
       cost: [0, [Validators.required, CustomValidators.minValue(0)]],
-      price: [0, [Validators.required, CustomValidators.minValue(0)]],
+      price: [44.90, [Validators.required, CustomValidators.minValue(0)]], // Agora é preço POR PONTO
       paid: [false],
       paymentMethod: ['Pix'],
       point: [1, [Validators.required, CustomValidators.minValue(1)]],
@@ -137,7 +137,7 @@ export class ClientFormComponent implements OnInit {
       const phoneNumber = parsePhoneNumber(phoneWithPlus);
 
       if (phoneNumber.isValid() && phoneNumber.country) {
-        return phoneNumber.country; // Retorna "BR", "US", "PT", etc
+        return phoneNumber.country;
       }
     } catch (error) {
       // Ignora erros de parse
@@ -147,16 +147,16 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Calcula o preço baseado nos pontos selecionados
+   * Atualiza o preço por ponto baseado na quantidade selecionada
    */
-  calculatePrice(points: number): void {
+  updatePricePerPoint(points: number): void {
     if (!points || points < 1) return;
 
     const pricePerPoint = this.priceTable[points] || this.priceTable[4];
-    const totalPrice = pricePerPoint * points;
 
+    // Atualiza o campo de preço com o valor POR PONTO
     this.clientForm.patchValue({
-      price: parseFloat(totalPrice.toFixed(2))
+      price: parseFloat(pricePerPoint.toFixed(2))
     }, { emitEvent: false });
   }
 
@@ -168,13 +168,24 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
-   * Retorna texto descritivo do preço
+   * Calcula e retorna o valor total (pontos × preço por ponto)
+   * Usado apenas para exibição visual
    */
-  getPriceDescription(points: number): string {
-    if (!points || points < 1) return '';
+  getTotalPrice(): number {
+    const points = this.clientForm.get('point')?.value || 0;
+    const pricePerPoint = this.clientForm.get('price')?.value || 0;
+    return points * pricePerPoint;
+  }
 
-    const pricePerPoint = this.getPricePerPoint(points);
-    const total = pricePerPoint * points;
+  /**
+   * Retorna texto descritivo do cálculo
+   */
+  getPriceDescription(): string {
+    const points = this.clientForm.get('point')?.value || 0;
+    const pricePerPoint = this.clientForm.get('price')?.value || 0;
+    const total = this.getTotalPrice();
+
+    if (!points || points < 1) return '';
 
     return `${points} ponto(s) × R$ ${pricePerPoint.toFixed(2)} = R$ ${total.toFixed(2)}`;
   }
@@ -293,6 +304,7 @@ export class ClientFormComponent implements OnInit {
         ...formData,
         cpf: cpfNumbersOnly,           // Apenas números: 12345678901
         phone: phoneNumbersOnly,        // Apenas números: 5548988591509
+        price: formData.price,          // Preço POR PONTO (ex: 44.90)
         date: formData.date ? DateUtils.toISOString(formData.date) : '',
         createdAt: this.isEditMode ? formData.createdAt : DateUtils.getCurrentISODate(),
         archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt,

@@ -794,3 +794,109 @@ label {
     }
   }
 }
+
+
+.price-calculation {
+  display: block;
+  font-size: 13px;
+  color: var(--primary);
+  font-weight: 600;
+  margin-top: 6px;
+  padding: 8px 12px;
+  background: rgba(59, 130, 246, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  font-family: 'Courier New', monospace;
+}
+
+// Card de resumo do valor total
+.total-summary {
+  margin-top: 24px;
+  padding: 20px;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(59, 130, 246, 0.03) 100%);
+  border: 2px solid rgba(59, 130, 246, 0.2);
+  border-radius: var(--border-radius);
+  animation: slideIn 0.3s ease-out;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  font-size: 14px;
+
+  .summary-label {
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .summary-value {
+    color: var(--text-primary);
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+  }
+}
+
+.summary-divider {
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(59, 130, 246, 0.3) 50%,
+    transparent 100%
+  );
+  margin: 12px 0;
+}
+
+.summary-total {
+  padding: 12px 0 0 0;
+
+  .summary-label {
+    color: var(--text-primary);
+    font-weight: 700;
+    font-size: 16px;
+  }
+
+  .summary-value {
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 20px;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .total-summary {
+    padding: 16px;
+  }
+
+  .summary-item {
+    font-size: 13px;
+
+    .summary-value {
+      font-size: 14px;
+    }
+  }
+
+  .summary-total {
+    .summary-label {
+      font-size: 15px;
+    }
+
+    .summary-value {
+      font-size: 18px;
+    }
+  }
+}
