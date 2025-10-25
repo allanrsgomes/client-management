@@ -87,9 +87,17 @@
       </div>
 
       <div class="col-services">
-        <div class="badges">
-          <span *ngFor="let app of client.app" class="badge badge-primary">{{ app }}</span>
-          <span *ngIf="!client.app || client.app.length === 0" class="badge badge-secondary">Nenhum</span>
+        <div class="services-wrapper">
+          <div class="badges apps-badges">
+            <span class="badge-label">Apps:</span>
+            <span *ngFor="let app of client.app" class="badge badge-primary">{{ app }}</span>
+            <span *ngIf="!client.app || client.app.length === 0" class="badge badge-secondary">Nenhum</span>
+          </div>
+          <div class="badges servers-badges">
+            <span class="badge-label">Servidores:</span>
+            <span *ngFor="let server of client.server" class="badge badge-server">{{ server }}</span>
+            <span *ngIf="!client.server || client.server.length === 0" class="badge badge-secondary">Nenhum</span>
+          </div>
         </div>
       </div>
 

@@ -224,31 +224,41 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label for="cost">Custo</label>
-          <input type="number" id="cost" formControlName="cost" class="form-control" step="0.01" min="0"
-            [class.error]="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched" />
-          <span class="error-message" *ngIf="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched">
-            <span *ngIf="clientForm.get('cost')?.errors?.['minValue']">Valor deve ser maior ou igual a 0</span>
+          <label for="point">Pontos *</label>
+          <select id="point" formControlName="point" class="form-control"
+            [class.error]="clientForm.get('point')?.invalid && clientForm.get('point')?.touched">
+            <option *ngFor="let points of pointOptions" [value]="points">
+              {{ points }} ponto(s)
+            </option>
+          </select>
+          <span class="error-message" *ngIf="clientForm.get('point')?.invalid && clientForm.get('point')?.touched">
+            <span *ngIf="clientForm.get('point')?.errors?.['required']">Pontos é obrigatório</span>
           </span>
         </div>
 
         <div class="form-group">
-          <label for="price">Preço</label>
+          <label for="price">Preço Total *</label>
           <input type="number" id="price" formControlName="price" class="form-control" step="0.01" min="0"
             [class.error]="clientForm.get('price')?.invalid && clientForm.get('price')?.touched" />
+          <span class="help-text">Valor calculado automaticamente. Pode ser editado manualmente.</span>
           <span class="error-message" *ngIf="clientForm.get('price')?.invalid && clientForm.get('price')?.touched">
             <span *ngIf="clientForm.get('price')?.errors?.['required']">Preço é obrigatório</span>
             <span *ngIf="clientForm.get('price')?.errors?.['minValue']">Valor deve ser maior ou igual a 0</span>
           </span>
         </div>
-
-        <div class="form-group">
-          <label for="point">Pontos</label>
-          <input type="number" id="point" formControlName="point" class="form-control" min="0" />
-        </div>
       </div>
 
       <div class="form-row">
+        <div class="form-group">
+          <label for="cost">Custo</label>
+          <input type="number" id="cost" formControlName="cost" class="form-control" step="0.01" min="0"
+            [class.error]="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched" />
+          <span class="help-text">Custo operacional (opcional)</span>
+          <span class="error-message" *ngIf="clientForm.get('cost')?.invalid && clientForm.get('cost')?.touched">
+            <span *ngIf="clientForm.get('cost')?.errors?.['minValue']">Valor deve ser maior ou igual a 0</span>
+          </span>
+        </div>
+
         <div class="form-group">
           <label for="paymentMethod">Forma de Pagamento</label>
           <select id="paymentMethod" formControlName="paymentMethod" class="form-control">
@@ -257,6 +267,7 @@
         </div>
 
         <div class="form-group">
+          <label>Status</label>
           <label class="checkbox-label checkbox-paid">
             <input type="checkbox" formControlName="paid" />
             <mat-icon>{{ clientForm.get('paid')?.value ? 'check_circle' : 'radio_button_unchecked' }}</mat-icon>

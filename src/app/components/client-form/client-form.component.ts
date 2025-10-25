@@ -20,6 +20,19 @@ export class ClientFormComponent implements OnInit {
   apps: string[] = [];
   servers: string[] = [];
 
+  // Opções de pontos
+  pointOptions = [1, 2, 3, 4, 5, 6];
+
+  // Tabela de preços por ponto
+  private priceTable: { [key: number]: number } = {
+    1: 44.90,
+    2: 34.90,
+    3: 29.90,
+    4: 29.90,
+    5: 29.90,
+    6: 29.90
+  };
+
   paymentMethods = ['Pix', 'Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Transferência'];
   ufs = ['AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA', 'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN', 'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'];
 
@@ -41,6 +54,11 @@ export class ClientFormComponent implements OnInit {
     if (this.isEditMode && this.clientId) {
       this.loadClient(this.clientId);
     }
+
+    // Observa mudanças no campo de pontos
+    this.clientForm.get('point')?.valueChanges.subscribe(points => {
+      this.calculatePrice(points);
+    });
   }
 
   loadAppsAndServers(): void {
@@ -92,7 +110,7 @@ export class ClientFormComponent implements OnInit {
       price: [0, [Validators.required, CustomValidators.minValue(0)]],
       paid: [false],
       paymentMethod: ['Pix'],
-      point: [0, CustomValidators.minValue(0)],
+      point: [1, [Validators.required, CustomValidators.minValue(1)]],
       recommendation: [''],
       observations: [''],
       createdAt: [DateUtils.getCurrentISODate()],
@@ -101,6 +119,40 @@ export class ClientFormComponent implements OnInit {
       archivedAt: [''],
       mac: [''],
     });
+  }
+
+  /**
+   * Calcula o preço baseado nos pontos selecionados
+   */
+  calculatePrice(points: number): void {
+    if (!points || points < 1) return;
+
+    const pricePerPoint = this.priceTable[points] || this.priceTable[4]; // Padrão 29,90 para 4+
+    const totalPrice = pricePerPoint * points;
+
+    // Atualiza o campo de preço
+    this.clientForm.patchValue({
+      price: parseFloat(totalPrice.toFixed(2))
+    }, { emitEvent: false }); // emitEvent: false evita loop infinito
+  }
+
+  /**
+   * Retorna o preço por ponto baseado na quantidade
+   */
+  getPricePerPoint(points: number): number {
+    return this.priceTable[points] || this.priceTable[4];
+  }
+
+  /**
+   * Retorna texto descritivo do preço
+   */
+  getPriceDescription(points: number): string {
+    if (!points || points < 1) return '';
+
+    const pricePerPoint = this.getPricePerPoint(points);
+    const total = pricePerPoint * points;
+
+    return `${points} ponto(s) × R$ ${pricePerPoint.toFixed(2)} = R$ ${total.toFixed(2)}`;
   }
 
   get credentials(): FormArray {
