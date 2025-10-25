@@ -39,13 +39,13 @@ import { ConfirmDialogComponent } from './components/shared/confirm-dialog/confi
 import { InputDialogComponent } from './components/shared/input-dialog/input-dialog.component';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBQleq2pB6djL2pJT9Mc88-1jwL275MC0A",
-  authDomain: "tv-house-app.firebaseapp.com",
-  databaseURL: "https://tv-house-app-default-rtdb.firebaseio.com",
-  projectId: "tv-house-app",
-  storageBucket: "tv-house-app.appspot.com",
-  messagingSenderId: "640698621720",
-  appId: "1:640698621720:web:3340c3e60df1e21a9e486d"
+  apiKey: "AIzaSyDpTyQxGsNPwV7W7zvYuEk5c9eAYmbRc9c",
+  authDomain: "tv-house-app-tst.firebaseapp.com",
+  databaseURL: "https://tv-house-app-tst-default-rtdb.firebaseio.com",
+  projectId: "tv-house-app-tst",
+  storageBucket: "tv-house-app-tst.firebasestorage.app",
+  messagingSenderId: "394838271920",
+  appId: "1:394838271920:web:f8a69ed450ed424e4a9875"
 };
 
 @NgModule({

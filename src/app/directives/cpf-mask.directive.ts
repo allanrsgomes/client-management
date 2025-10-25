@@ -1,19 +1,10 @@
-// src/app/directives/cpf-mask.directive.ts
-
 import { Directive, HostListener, ElementRef } from '@angular/core';
-import { NgControl } from '@angular/forms';
-import { StringUtils } from '../utils/string.utils';
 
 @Directive({
   selector: '[appCpfMask]'
 })
 export class CpfMaskDirective {
-  private previousValue: string = '';
-
-  constructor(
-    private el: ElementRef,
-    private control: NgControl
-  ) {}
+  constructor(private el: ElementRef) { }
 
   @HostListener('input', ['$event'])
   onInput(event: any): void {
@@ -21,53 +12,72 @@ export class CpfMaskDirective {
     let value = input.value;
 
     // Remove tudo que não é número
-    const numbersOnly = StringUtils.onlyNumbers(value);
+    let numbersOnly = value.replace(/\D/g, '');
 
     // Limita a 11 dígitos
-    const limited = numbersOnly.substring(0, 11);
-
-    // Aplica máscara visual
-    const masked = StringUtils.applyCPFMaskWhileTyping(limited);
-
-    // Atualiza o input com a máscara
-    input.value = masked;
-
-    // Atualiza o FormControl com apenas números
-    if (this.control && this.control.control) {
-      // Usa setTimeout para evitar problemas de sincronização
-      setTimeout(() => {
-        this.control.control?.setValue(limited, { emitEvent: false });
-        // Dispara validação
-        this.control.control?.updateValueAndValidity({ emitEvent: false });
-      });
+    if (numbersOnly.length > 11) {
+      numbersOnly = numbersOnly.substring(0, 11);
     }
 
-    this.previousValue = masked;
+    // Formata o CPF enquanto digita
+    const formatted = this.formatCPF(numbersOnly);
+
+    // Atualiza o valor do input
+    input.value = formatted;
+
+    // Posiciona o cursor no final
+    this.setCursorPosition(input, formatted);
   }
 
-  @HostListener('blur')
-  onBlur(): void {
-    if (this.control && this.control.control) {
-      const value = this.control.control.value;
-      if (value) {
-        // Atualiza a exibição com máscara completa
-        const input = this.el.nativeElement as HTMLInputElement;
-        input.value = StringUtils.maskCPF(value);
-      }
-      // Força validação ao sair do campo
-      this.control.control.markAsTouched();
-      this.control.control.updateValueAndValidity();
+  @HostListener('keydown', ['$event'])
+  onKeyDown(event: KeyboardEvent): void {
+    // Permite: backspace, delete, tab, escape, enter
+    if ([46, 8, 9, 27, 13].indexOf(event.keyCode) !== -1 ||
+      // Permite: Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X
+      (event.keyCode === 65 && event.ctrlKey === true) ||
+      (event.keyCode === 67 && event.ctrlKey === true) ||
+      (event.keyCode === 86 && event.ctrlKey === true) ||
+      (event.keyCode === 88 && event.ctrlKey === true) ||
+      // Permite: home, end, left, right
+      (event.keyCode >= 35 && event.keyCode <= 39)) {
+      return;
+    }
+
+    // Garante que é um número
+    if ((event.shiftKey || (event.keyCode < 48 || event.keyCode > 57)) &&
+      (event.keyCode < 96 || event.keyCode > 105)) {
+      event.preventDefault();
     }
   }
 
-  @HostListener('focus')
-  onFocus(): void {
-    if (this.control && this.control.control) {
-      const value = this.control.control.value;
-      if (value) {
-        const input = this.el.nativeElement as HTMLInputElement;
-        input.value = StringUtils.maskCPF(value);
-      }
+  /**
+   * Formata o CPF enquanto digita: 123.456.789-01
+   */
+  private formatCPF(numbersOnly: string): string {
+    if (numbersOnly.length === 0) {
+      return '';
+    } else if (numbersOnly.length <= 3) {
+      // 123
+      return numbersOnly;
+    } else if (numbersOnly.length <= 6) {
+      // 123.456
+      return `${numbersOnly.substring(0, 3)}.${numbersOnly.substring(3)}`;
+    } else if (numbersOnly.length <= 9) {
+      // 123.456.789
+      return `${numbersOnly.substring(0, 3)}.${numbersOnly.substring(3, 6)}.${numbersOnly.substring(6)}`;
+    } else {
+      // 123.456.789-01
+      return `${numbersOnly.substring(0, 3)}.${numbersOnly.substring(3, 6)}.${numbersOnly.substring(6, 9)}-${numbersOnly.substring(9, 11)}`;
     }
+  }
+
+  /**
+   * Posiciona o cursor no final do texto
+   */
+  private setCursorPosition(input: HTMLInputElement, value: string): void {
+    setTimeout(() => {
+      const length = value.length;
+      input.setSelectionRange(length, length);
+    }, 0);
   }
 }

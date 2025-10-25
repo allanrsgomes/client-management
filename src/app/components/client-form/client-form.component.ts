@@ -4,8 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FirebaseService } from '../../services/firebase.service';
 import { NotificationService } from '../../services/notification.service';
 import { CustomValidators } from '../../validators/custom-validators';
-import { StringUtils } from '../../utils/string.utils';
 import { DateUtils } from '../../utils/date.utils';
+import { parsePhoneNumber } from 'libphonenumber-js';
 
 @Component({
   selector: 'app-client-form',
@@ -122,18 +122,42 @@ export class ClientFormComponent implements OnInit {
   }
 
   /**
+   * Retorna apenas o código do país detectado (ex: "BR", "US", "PT")
+   * Para exibir na label do campo de telefone
+   */
+  getDetectedCountry(): string | null {
+    const phoneValue = this.clientForm.get('phone')?.value;
+    if (!phoneValue || phoneValue.length < 3) return null;
+
+    try {
+      const numbersOnly = phoneValue.replace(/\D/g, '');
+      if (numbersOnly.length < 8) return null;
+
+      const phoneWithPlus = '+' + numbersOnly;
+      const phoneNumber = parsePhoneNumber(phoneWithPlus);
+
+      if (phoneNumber.isValid() && phoneNumber.country) {
+        return phoneNumber.country; // Retorna "BR", "US", "PT", etc
+      }
+    } catch (error) {
+      // Ignora erros de parse
+    }
+
+    return null;
+  }
+
+  /**
    * Calcula o preço baseado nos pontos selecionados
    */
   calculatePrice(points: number): void {
     if (!points || points < 1) return;
 
-    const pricePerPoint = this.priceTable[points] || this.priceTable[4]; // Padrão 29,90 para 4+
+    const pricePerPoint = this.priceTable[points] || this.priceTable[4];
     const totalPrice = pricePerPoint * points;
 
-    // Atualiza o campo de preço
     this.clientForm.patchValue({
       price: parseFloat(totalPrice.toFixed(2))
-    }, { emitEvent: false }); // emitEvent: false evita loop infinito
+    }, { emitEvent: false });
   }
 
   /**
@@ -258,10 +282,17 @@ export class ClientFormComponent implements OnInit {
       this.loading = true;
       const formData = this.clientForm.value;
       const macsArray = formData.macs?.map((mac: any) => mac.address) || [];
+
+      // Remove formatação do CPF (salva apenas números)
+      const cpfNumbersOnly = formData.cpf ? formData.cpf.replace(/\D/g, '') : '';
+
+      // Remove formatação do telefone (salva apenas números)
+      const phoneNumbersOnly = formData.phone.replace(/\D/g, '');
+
       const clientData = {
         ...formData,
-        cpf: StringUtils.onlyNumbers(formData.cpf),
-        phone: StringUtils.onlyNumbers(formData.phone),
+        cpf: cpfNumbersOnly,           // Apenas números: 12345678901
+        phone: phoneNumbersOnly,        // Apenas números: 5548988591509
         date: formData.date ? DateUtils.toISOString(formData.date) : '',
         createdAt: this.isEditMode ? formData.createdAt : DateUtils.getCurrentISODate(),
         archivedAt: formData.archived && !this.isEditMode ? DateUtils.getCurrentISODate() : formData.archivedAt,

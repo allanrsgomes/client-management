@@ -24,8 +24,14 @@
       <div class="form-row">
         <div class="form-group">
           <label for="cpf">CPF</label>
-          <input type="text" id="cpf" formControlName="cpf" class="form-control" placeholder="000.000.000-00" appCpfMask
-            [class.error]="clientForm.get('cpf')?.invalid && clientForm.get('cpf')?.touched" />
+          <input type="text" id="cpf" formControlName="cpf" class="form-control cpf-input" placeholder="123.456.789-01"
+            appCpfMask [class.error]="clientForm.get('cpf')?.invalid && clientForm.get('cpf')?.touched"
+            [class.valid]="clientForm.get('cpf')?.valid && clientForm.get('cpf')?.value" />
+
+          <span class="help-text">
+            Digite apenas os números do CPF
+          </span>
+
           <span class="error-message" *ngIf="clientForm.get('cpf')?.invalid && clientForm.get('cpf')?.touched">
             <mat-icon>error</mat-icon>
             <span *ngIf="clientForm.get('cpf')?.errors?.['required']">CPF é obrigatório</span>
@@ -36,14 +42,31 @@
         </div>
 
         <div class="form-group">
-          <label for="phone">Telefone *</label>
-          <input type="text" id="phone" formControlName="phone" class="form-control" placeholder="(00) 00000-0000"
-            appPhoneMask [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched" />
+          <label for="phone">
+            Telefone *
+            <span class="phone-country-badge" *ngIf="getDetectedCountry()">
+              {{ getDetectedCountry() }}
+            </span>
+          </label>
+
+          <input type="tel" id="phone" formControlName="phone" class="form-control phone-international"
+            placeholder="+55 (48) 98859-1509" appPhoneMask
+            [class.error]="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched"
+            [class.valid]="clientForm.get('phone')?.valid && clientForm.get('phone')?.value" />
+
+          <span class="help-text">
+            Digite com código do país (ex: 5548988591509)
+          </span>
+
           <span class="error-message" *ngIf="clientForm.get('phone')?.invalid && clientForm.get('phone')?.touched">
             <mat-icon>error</mat-icon>
             <span *ngIf="clientForm.get('phone')?.errors?.['required']">Telefone é obrigatório</span>
             <span *ngIf="clientForm.get('phone')?.errors?.['phoneInvalid']">
-              {{ clientForm.get('phone')?.errors?.['phoneInvalid']?.message || 'Telefone inválido' }}
+              {{ clientForm.get('phone')?.errors?.['phoneInvalid']?.message }}
+              <small *ngIf="clientForm.get('phone')?.errors?.['phoneInvalid']?.details"
+                style="display: block; margin-top: 4px; opacity: 0.9;">
+                {{ clientForm.get('phone')?.errors?.['phoneInvalid']?.details }}
+              </small>
             </span>
           </span>
         </div>

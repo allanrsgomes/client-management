@@ -1,4 +1,5 @@
 import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
+import { parsePhoneNumber, isValidPhoneNumber } from 'libphonenumber-js';
 import { StringUtils } from '../utils/string.utils';
 
 export class CustomValidators {
@@ -19,7 +20,90 @@ export class CustomValidators {
     };
   }
 
+  /**
+   * Validador de telefone internacional com detecção automática de país
+   *
+   * Exemplos de uso:
+   * - 5548988594826 → Detecta Brasil (+55) e valida
+   * - 14155552671 → Detecta EUA (+1) e valida
+   * - 351912345678 → Detecta Portugal (+351) e valida
+   *
+   * @returns ValidatorFn
+   */
   static phone(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null;
+      }
+
+      let phoneValue = control.value.toString().trim();
+
+      // Remove todos os caracteres não numéricos
+      const numbersOnly = phoneValue.replace(/\D/g, '');
+
+      // Precisa ter pelo menos 8 dígitos
+      if (numbersOnly.length < 8) {
+        return {
+          phoneInvalid: {
+            message: 'Telefone muito curto',
+            details: 'Digite o código do país + número (ex: 5548988594826)'
+          }
+        };
+      }
+
+      // Adiciona o + no início se não tiver
+      const phoneWithPlus = numbersOnly.startsWith('+') ? numbersOnly : `+${numbersOnly}`;
+
+      try {
+        // Tenta validar o número internacionalmente (sem especificar país)
+        if (isValidPhoneNumber(phoneWithPlus)) {
+          // Parse para obter informações detalhadas
+          const phoneNumber = parsePhoneNumber(phoneWithPlus);
+
+          return null; // Número válido!
+        }
+
+        // Se não for válido internacionalmente, tenta como número brasileiro
+        if (numbersOnly.length >= 10 && numbersOnly.length <= 11) {
+          const brPhone = `+55${numbersOnly}`;
+          if (isValidPhoneNumber(brPhone)) {
+            return null;
+          }
+        }
+
+        // Tenta identificar qual país poderia ser
+        try {
+          const phoneNumber = parsePhoneNumber(phoneWithPlus);
+          return {
+            phoneInvalid: {
+              message: `Número inválido para ${phoneNumber.country || 'o país detectado'}`,
+              details: `Formato esperado: código do país + DDD + número`
+            }
+          };
+        } catch {
+          return {
+            phoneInvalid: {
+              message: 'Número de telefone inválido',
+              details: 'Digite com código do país (ex: 5548988594826 para Brasil)'
+            }
+          };
+        }
+
+      } catch (error) {
+        return {
+          phoneInvalid: {
+            message: 'Formato de telefone inválido',
+            details: 'Digite apenas números com código do país (ex: 5548988594826)'
+          }
+        };
+      }
+    };
+  }
+
+  /**
+   * Validador alternativo mais permissivo (apenas verifica comprimento)
+   */
+  static phoneFlexible(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
       if (!control.value) {
         return null;
@@ -27,12 +111,15 @@ export class CustomValidators {
 
       const phoneNumbers = StringUtils.onlyNumbers(control.value);
 
-      if (phoneNumbers.length < 10 || phoneNumbers.length > 11) {
-        return { phoneInvalid: { message: 'Telefone deve ter 10 ou 11 dígitos' } };
+      if (phoneNumbers.length < 8 || phoneNumbers.length > 15) {
+        return {
+          phoneInvalid: {
+            message: 'Telefone deve ter entre 8 e 15 dígitos'
+          }
+        };
       }
 
-      const isValid = StringUtils.isValidPhone(phoneNumbers);
-      return isValid ? null : { phoneInvalid: { message: 'Telefone inválido' } };
+      return null;
     };
   }
 
