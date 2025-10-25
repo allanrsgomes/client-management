@@ -21,7 +21,7 @@
       <span *ngFor="let app of client.app" class="badge">{{ app }}</span>
       <span *ngIf="client.archived" class="badge archived">Arquivado</span>
       <span *ngIf="client.paid" class="badge paid">Pago</span>
-      <span *ngIf="!client.paid" class="badge unpaid">Não Pago</span>
+      <span *ngIf="!client.paid" class="badge unpaid">Pendente</span>
     </div>
 
     <!-- Informações Básicas -->

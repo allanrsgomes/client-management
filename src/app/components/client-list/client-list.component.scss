@@ -481,7 +481,7 @@
 
 .list-header {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 16px 24px;
   background: var(--bg-secondary);
@@ -495,7 +495,7 @@
 
 .client-row {
   display: grid;
-  grid-template-columns: 2fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1.5fr 1fr 1.5fr 1fr 1fr 1fr;
   gap: 16px;
   padding: 20px 24px;
   border-bottom: 1px solid var(--border-color);

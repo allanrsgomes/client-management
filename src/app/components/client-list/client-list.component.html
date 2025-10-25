@@ -49,8 +49,9 @@
         <span>Valor</span>
         <mat-icon class="sort-icon">{{ getSortIcon('price') }}</mat-icon>
       </div>
-      <div class="col-status">
-        Status
+      <div class="col-status sortable" (click)="sort('paid')">
+        <span>Status</span>
+        <mat-icon class="sort-icon">{{ getSortIcon('paid') }}</mat-icon>
       </div>
       <div class="col-actions">
         Ações

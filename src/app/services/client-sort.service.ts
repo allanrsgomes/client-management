@@ -4,7 +4,7 @@ import { Injectable } from '@angular/core';
 import { Client } from '../models/client.model';
 import { DateUtils } from '../utils/date.utils';
 
-export type SortField = 'name' | 'cpf' | 'phone' | 'price' | 'city' | 'date' | 'daysUntilExpiry';
+export type SortField = 'name' | 'cpf' | 'phone' | 'price' | 'city' | 'date' | 'daysUntilExpiry' | 'paid';
 export type SortDirection = 'asc' | 'desc';
 
 @Injectable({
@@ -51,6 +51,10 @@ export class ClientSortService {
           compareB = DateUtils.getDaysUntilDate(b.date);
           if (compareA === Infinity) compareA = 999999;
           if (compareB === Infinity) compareB = 999999;
+          break;
+        case 'paid':
+          compareA = a.paid ? 1 : 0;
+          compareB = b.paid ? 1 : 0;
           break;
         default:
           compareA = a.name?.toLowerCase() || '';

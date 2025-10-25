@@ -189,8 +189,8 @@ export class ClientListComponent implements OnInit {
   async togglePaymentStatus(client: Client): Promise<void> {
     if (!client.id) return;
 
-    const action = client.paid ? 'marcar como não pago' : 'marcar como pago';
-    const title = client.paid ? 'Marcar como Não Pago' : 'Marcar como Pago';
+    const action = client.paid ? 'marcar como pendente' : 'marcar como pago';
+    const title = client.paid ? 'Marcar como pendente' : 'Marcar como Pago';
     const message = `Deseja realmente ${action} o cliente "${client.name}"?`;
 
     this.notificationService.confirm(
@@ -204,7 +204,7 @@ export class ClientListComponent implements OnInit {
         try {
           await this.firebaseService.updateClient(client.id!, { paid: !client.paid });
           this.notificationService.success(
-            `Status de pagamento atualizado para ${!client.paid ? 'Pago' : 'Não Pago'}!`
+            `Status de pagamento atualizado para ${!client.paid ? 'Pago' : 'Pendente'}!`
           );
         } catch (error) {
           console.error('Erro ao alterar status de pagamento:', error);
