@@ -22,6 +22,12 @@ export class ClientListComponent implements OnInit {
   sortDirection: SortDirection = 'asc';
   dateUtils = DateUtils;
 
+  // Paginação
+  currentPage: number = 1;
+  itemsPerPage: number = 20;
+  totalItems: number = 0;
+  totalPages: number = 0;
+
   constructor(
     private firebaseService: FirebaseService,
     private notificationService: NotificationService,
@@ -37,12 +43,30 @@ export class ClientListComponent implements OnInit {
   loadClients(): void {
     this.clients$ = this.firebaseService.getClients().pipe(
       map(clients => {
+        // Aplica filtros
         const filtered = this.filterService.applyFilters(
           clients,
           this.searchTerm,
           this.showArchived
         );
-        return this.sortService.sort(filtered, this.sortField, this.sortDirection);
+
+        // Aplica ordenação
+        const sorted = this.sortService.sort(filtered, this.sortField, this.sortDirection);
+
+        // Calcula paginação
+        this.totalItems = sorted.length;
+        this.totalPages = Math.ceil(this.totalItems / this.itemsPerPage);
+
+        // Ajusta página atual se necessário
+        if (this.currentPage > this.totalPages && this.totalPages > 0) {
+          this.currentPage = this.totalPages;
+        }
+
+        // Retorna apenas os itens da página atual
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+
+        return sorted.slice(startIndex, endIndex);
       })
     );
   }
@@ -54,6 +78,7 @@ export class ClientListComponent implements OnInit {
       this.sortField = field;
       this.sortDirection = 'asc';
     }
+    this.currentPage = 1; // Volta para primeira página ao ordenar
     this.loadClients();
   }
 
@@ -65,11 +90,70 @@ export class ClientListComponent implements OnInit {
   }
 
   onSearchChange(): void {
+    this.currentPage = 1; // Volta para primeira página ao buscar
     this.loadClients();
   }
 
   onArchivedChange(): void {
+    this.currentPage = 1; // Volta para primeira página ao mudar filtro
     this.loadClients();
+  }
+
+  // Métodos de paginação
+  goToPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.loadClients();
+      // Scroll para o topo da lista
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.goToPage(this.currentPage + 1);
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.goToPage(this.currentPage - 1);
+    }
+  }
+
+  getPageNumbers(): number[] {
+    const pages: number[] = [];
+    const maxVisiblePages = 5;
+
+    if (this.totalPages <= maxVisiblePages) {
+      // Mostra todas as páginas se forem poucas
+      for (let i = 1; i <= this.totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      // Lógica para mostrar páginas com reticências
+      const halfVisible = Math.floor(maxVisiblePages / 2);
+      let startPage = Math.max(1, this.currentPage - halfVisible);
+      let endPage = Math.min(this.totalPages, startPage + maxVisiblePages - 1);
+
+      if (endPage - startPage < maxVisiblePages - 1) {
+        startPage = Math.max(1, endPage - maxVisiblePages + 1);
+      }
+
+      for (let i = startPage; i <= endPage; i++) {
+        pages.push(i);
+      }
+    }
+
+    return pages;
+  }
+
+  getStartItem(): number {
+    return (this.currentPage - 1) * this.itemsPerPage + 1;
+  }
+
+  getEndItem(): number {
+    return Math.min(this.currentPage * this.itemsPerPage, this.totalItems);
   }
 
   async renewClient(client: Client): Promise<void> {

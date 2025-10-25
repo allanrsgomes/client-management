@@ -23,6 +23,11 @@
     </label>
   </div>
 
+  <!-- Info da paginação -->
+  <div class="pagination-info" *ngIf="totalItems > 0">
+    <span>Mostrando {{ getStartItem() }} - {{ getEndItem() }} de {{ totalItems }} clientes</span>
+  </div>
+
   <div class="clients-list" *ngIf="clients$ | async as clients">
     <div class="list-header">
       <div class="col-name sortable" (click)="sort('name')">
@@ -148,5 +153,28 @@
       <h3>Nenhum cliente encontrado</h3>
       <p>{{ searchTerm ? 'Tente ajustar sua busca' : 'Adicione um novo cliente para começar' }}</p>
     </div>
+  </div>
+
+  <!-- Paginação -->
+  <div class="pagination" *ngIf="totalPages > 1">
+    <button class="pagination-btn" (click)="previousPage()" [disabled]="currentPage === 1">
+      <mat-icon>chevron_left</mat-icon>
+      Anterior
+    </button>
+
+    <div class="pagination-pages">
+      <button
+        *ngFor="let page of getPageNumbers()"
+        class="pagination-page"
+        [class.active]="page === currentPage"
+        (click)="goToPage(page)">
+        {{ page }}
+      </button>
+    </div>
+
+    <button class="pagination-btn" (click)="nextPage()" [disabled]="currentPage === totalPages">
+      Próxima
+      <mat-icon>chevron_right</mat-icon>
+    </button>
   </div>
 </div>
